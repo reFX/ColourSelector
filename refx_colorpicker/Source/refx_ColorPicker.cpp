@@ -606,10 +606,10 @@ void ColorPicker::changeColour ( juce::Slider* slider )
 
 	if (sliders[0].get() == slider || sliders[1].get() == slider || sliders[2].get() == slider)
 	{
-		auto col = juce::Colour::fromHSL (sliders[0]->getValue() / 360.0,
-										  sliders[1]->getValue() / 100.0,
-										  sliders[2]->getValue() / 100.0,
-										  sliders[6]->getValue() / 255.0);
+		auto col = juce::Colour::fromHSL (float (sliders[0]->getValue() / 360.0),
+										  float (sliders[1]->getValue() / 100.0),
+										  float (sliders[2]->getValue() / 100.0),
+										  float (sliders[6]->getValue() / 255.0));
 
 		setCurrentColour (col);
 	}
