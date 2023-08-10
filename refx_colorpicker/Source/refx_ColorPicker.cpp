@@ -219,8 +219,46 @@ public:
         cg.point1.setXY (0.0f, (float) edge);
         cg.point2.setXY (0.0f, (float) getHeight());
 
+		auto c = owner.colour;
         for (float i = 0.0f; i <= 1.0f; i += 0.02f)
-            cg.addColour (i, juce::Colour (i, 1.0f, 1.0f, 1.0f));
+		{
+			if (param == Params::hue)
+			{
+				auto hsb = c.getHSB();
+				hsb.h = 1.0f - i;
+				cg.addColour (i, DeepColor (hsb).getColour());
+			}
+			else if (param == Params::sat)
+			{
+				auto hsb = c.getHSB();
+				hsb.s = 1.0f - i;
+				cg.addColour (i, DeepColor (hsb).getColour());
+			}
+			else if (param == Params::bri)
+			{
+				auto hsb = c.getHSB();
+				hsb.b = 1.0f - i;
+				cg.addColour (i, DeepColor (hsb).getColour());
+			}
+			else if (param == Params::red)
+			{
+				auto rgb = c.getRGB();
+				rgb.r = 1.0f - i;
+				cg.addColour (i, DeepColor (rgb).getColour());
+			}
+			else if (param == Params::blue)
+			{
+				auto rgb = c.getRGB();
+				rgb.b = 1.0f - i;
+				cg.addColour (i, DeepColor (rgb).getColour());
+			}
+			else if (param == Params::green)
+			{
+				auto rgb = c.getRGB();
+				rgb.g = 1.0f - i;
+				cg.addColour (i, DeepColor (rgb).getColour());
+			}
+		}
 
         g.setGradientFill (cg);
         g.fillRect (getLocalBounds().reduced (edge));
@@ -306,6 +344,7 @@ public:
 
     void updateIfNeeded()
     {
+		repaint();
         resized();
     }
 

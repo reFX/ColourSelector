@@ -107,6 +107,18 @@ DeepColor::DeepColor (juce::uint32 c) noexcept
     col = RGB ((((c >> 16) & 0xff) / 255.0f), (((c >> 8)  & 0xff) / 255.0f), (((c >> 0)  & 0xff) / 255.0f));
 }
 
+DeepColor::DeepColor (HSB hsb, float alpha) noexcept
+{
+	a = alpha;
+	col = hsb;
+}
+
+DeepColor::DeepColor (RGB rgb, float alpha) noexcept
+{
+	a = alpha;
+	col = rgb;
+}
+
 DeepColor::DeepColor (const juce::Colour& c)
 {
     col = RGB ({c.getFloatRed(), c.getFloatGreen(), c.getFloatBlue()});
