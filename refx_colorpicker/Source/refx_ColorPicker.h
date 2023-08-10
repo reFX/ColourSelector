@@ -117,30 +117,44 @@ public:
     };
 
     //==============================================================================
-    // These need to be public otherwise the Projucer's live-build engine will complain
-    class ColourSpaceView;
-    class HueSelectorComp;
-    class ColourPreviewComp;
 
 private:
     //==============================================================================
     class SwatchComponent;
+	class Parameter2D;
+	class Parameter1D;
+	class ColourPreviewComp;
+
+	enum class Params
+	{
+		hue,
+		sat,
+		bri,
+
+		red,
+		green,
+		blue,
+	};
 
     DeepColor colour;
+	std::unique_ptr<juce::ToggleButton> toggles[6];
     std::unique_ptr<juce::Slider> sliders[7];
-    std::unique_ptr<ColourSpaceView> colourSpace;
-    std::unique_ptr<HueSelectorComp> hueSelector;
+    std::unique_ptr<Parameter2D> parameter2D;
+    std::unique_ptr<Parameter1D> parameter1D;
     std::unique_ptr<ColourPreviewComp> previewComponent;
     juce::OwnedArray<SwatchComponent> swatchComponents;
     const int flags;
     int edgeGap;
 
+	void updateParameters();
     void setHue (float newH);
     void setSV (float newS, float newV);
     void update (juce::NotificationType);
     void changeColour (juce::Slider*);
     void paint (juce::Graphics&) override;
     void resized() override;
+
+	void set (const DeepColor&);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ColorPicker)
 };

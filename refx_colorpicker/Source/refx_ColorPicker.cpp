@@ -20,15 +20,23 @@ struct ColourComponentSlider  : public juce::Slider
 };
 
 //==============================================================================
-class ColorPicker::ColourSpaceView  : public Component
+class ColorPicker::Parameter2D : public Component
 {
 public:
-    ColourSpaceView (ColorPicker& cs, DeepColor& dc, int edgeSize)
+	Parameter2D (ColorPicker& cs, DeepColor& dc, int edgeSize)
         : owner (cs), colour (dc), edge (edgeSize)
     {
         addAndMakeVisible (marker);
         setMouseCursor (juce::MouseCursor::CrosshairCursor);
     }
+
+	void setParameters (Params x_, Params y_)
+	{
+		xParam = x_;
+		yParam = y_;
+
+		updateIfNeeded();
+	}
 
     void paint (juce::Graphics& g) override
     {
@@ -67,22 +75,62 @@ public:
 
     void mouseDrag (const juce::MouseEvent& e) override
     {
-        auto sat =        (float) (e.x - edge) / (float) (getWidth()  - edge * 2);
-        auto val = 1.0f - (float) (e.y - edge) / (float) (getHeight() - edge * 2);
+        auto xVal =        (float) (e.x - edge) / (float) (getWidth()  - edge * 2);
+        auto yVal = 1.0f - (float) (e.y - edge) / (float) (getHeight() - edge * 2);
 
-        owner.setSV (sat, val);
+		auto set = [&] (Params param, float val)
+		{
+			if (param == Params::hue)
+			{
+				auto hsb = colour.getHSB();
+				hsb.h = juce::jlimit (0.0f, 1.0f, val);
+				owner.set (DeepColor::fromHSB (hsb.h, hsb.s, hsb.b, 1.0f));
+			}
+			else if (param == Params::sat)
+			{
+				auto hsb = colour.getHSB();
+				hsb.s = juce::jlimit (0.0f, 1.0f, val);
+				owner.set (DeepColor::fromHSB (hsb.h, hsb.s, hsb.b, 1.0f));
+			}
+			else if (param == Params::bri)
+			{
+				auto hsb = colour.getHSB();
+				hsb.b = juce::jlimit (0.0f, 1.0f, val);
+				owner.set (DeepColor::fromHSB (hsb.h, hsb.s, hsb.b, 1.0f));
+			}
+			else if (param == Params::red)
+			{
+				auto rgb = colour.getRGB();
+				rgb.r = juce::jlimit (0.0f, 1.0f, val);
+				owner.set (DeepColor::fromRGBA (rgb.r, rgb.g, rgb.b, 1.0f));
+			}
+			else if (param == Params::blue)
+			{
+				auto rgb = colour.getRGB();
+				rgb.b = juce::jlimit (0.0f, 1.0f, val);
+				owner.set (DeepColor::fromRGBA (rgb.r, rgb.g, rgb.b, 1.0f));
+			}
+			else if (param == Params::green)
+			{
+				auto rgb = colour.getRGB();
+				rgb.g = juce::jlimit (0.0f, 1.0f, val);
+				owner.set (DeepColor::fromRGBA (rgb.r, rgb.g, rgb.b, 1.0f));
+			}
+			else
+			{
+				jassertfalse;
+			}
+		};
+
+		set (xParam, xVal);
+		set (yParam, yVal);
     }
 
     void updateIfNeeded()
     {
-        if (! juce::approximatelyEqual (lastHue, colour.getHue()))
-        {
-            lastHue = colour.getHue();
-            colours = {};
-            repaint();
-        }
-
-        updateMarker();
+		colours = {};
+		repaint();
+		updateMarker();
     }
 
     void resized() override
@@ -94,13 +142,14 @@ public:
 private:
     ColorPicker& owner;
     DeepColor& colour;
-    float lastHue = 0;
     const int edge;
     juce::Image colours;
+	Params xParam = Params::hue;
+	Params yParam = Params::sat;
 
-    struct ColourSpaceMarker  : public Component
+    struct Parameter2DMarker  : public Component
     {
-        ColourSpaceMarker()
+		Parameter2DMarker()
         {
             setInterceptsMouseClicks (false, false);
         }
@@ -114,30 +163,54 @@ private:
         }
     };
 
-    ColourSpaceMarker marker;
+	Parameter2DMarker marker;
 
     void updateMarker()
     {
         auto markerSize = juce::jmax (14, edge * 2);
         auto area = getLocalBounds().reduced (edge);
 
-        auto hsb = colour.getHSB ();
+		auto get = [&] (Params param)
+		{
+			if (param == Params::hue)
+				return colour.getHSB().h;
+			else if (param == Params::sat)
+				return colour.getHSB().s;
+			else if (param == Params::bri)
+				return colour.getHSB().b;
+			else if (param == Params::red)
+				return colour.getRGB().r;
+			else if (param == Params::blue)
+				return colour.getRGB().b;
+			else if (param == Params::green)
+				return colour.getRGB().g;
+			else
+				jassertfalse;
+			return 0.0f;
+		};
 
-        marker.setBounds (juce::Rectangle<int> (markerSize, markerSize).withCentre (area.getRelativePoint (hsb.s, 1.0f - hsb.b)));
+        marker.setBounds (juce::Rectangle<int> (markerSize, markerSize).withCentre (area.getRelativePoint (get (xParam), 1.0f - get (yParam))));
     }
 
-    JUCE_DECLARE_NON_COPYABLE (ColourSpaceView)
+    JUCE_DECLARE_NON_COPYABLE (Parameter2D)
 };
 
 //==============================================================================
-class ColorPicker::HueSelectorComp  : public Component
+class ColorPicker::Parameter1D  : public Component
 {
 public:
-    HueSelectorComp (ColorPicker& cs, DeepColor& dc, int edgeSize)
+	Parameter1D (ColorPicker& cs, DeepColor& dc, int edgeSize)
         : owner (cs), colour (dc), edge (edgeSize)
     {
         addAndMakeVisible (marker);
     }
+
+	void setParameter (Params p)
+	{
+		param = p;
+
+		updateIfNeeded();
+	}
 
     void paint (juce::Graphics& g) override
     {
@@ -158,9 +231,26 @@ public:
         auto markerSize = juce::jmax (14, edge * 2);
         auto area = getLocalBounds().reduced (edge);
 
-        auto hsb = colour.getHSB();
+		auto get = [&] ()
+		{
+			if (param == Params::hue)
+				return colour.getHSB().h;
+			else if (param == Params::sat)
+				return colour.getHSB().s;
+			else if (param == Params::bri)
+				return colour.getHSB().b;
+			else if (param == Params::red)
+				return colour.getRGB().r;
+			else if (param == Params::blue)
+				return colour.getRGB().b;
+			else if (param == Params::green)
+				return colour.getRGB().g;
+			else
+				jassertfalse;
+			return 0.0f;
+		};
 
-        marker.setBounds (juce::Rectangle<int> (getWidth(), markerSize).withCentre (area.getRelativePoint (0.5f, hsb.h)));
+        marker.setBounds (juce::Rectangle<int> (getWidth(), markerSize).withCentre (area.getRelativePoint (0.5f, 1.0f - get())));
     }
 
     void mouseDown (const juce::MouseEvent& e) override
@@ -170,8 +260,49 @@ public:
 
     void mouseDrag (const juce::MouseEvent& e) override
     {
-        owner.setHue ((float) (e.y - edge) / (float) (getHeight() - edge * 2));
-    }
+		auto val = 1.0f - (float) (e.y - edge) / (float) (getHeight() - edge * 2);
+
+		if (param == Params::hue)
+		{
+			auto hsb = colour.getHSB();
+			hsb.h = juce::jlimit (0.0f, 1.0f, val);
+			owner.set (DeepColor::fromHSB (hsb.h, hsb.s, hsb.b, 1.0f));
+		}
+		else if (param == Params::sat)
+		{
+			auto hsb = colour.getHSB();
+			hsb.s = juce::jlimit (0.0f, 1.0f, val);
+			owner.set (DeepColor::fromHSB (hsb.h, hsb.s, hsb.b, 1.0f));
+		}
+		else if (param == Params::bri)
+		{
+			auto hsb = colour.getHSB();
+			hsb.b = juce::jlimit (0.0f, 1.0f, val);
+			owner.set (DeepColor::fromHSB (hsb.h, hsb.s, hsb.b, 1.0f));
+		}
+		else if (param == Params::red)
+		{
+			auto rgb = colour.getRGB();
+			rgb.r = juce::jlimit (0.0f, 1.0f, val);
+			owner.set (DeepColor::fromRGBA (rgb.r, rgb.g, rgb.b, 1.0f));
+		}
+		else if (param == Params::blue)
+		{
+			auto rgb = colour.getRGB();
+			rgb.b = juce::jlimit (0.0f, 1.0f, val);
+			owner.set (DeepColor::fromRGBA (rgb.r, rgb.g, rgb.b, 1.0f));
+		}
+		else if (param == Params::green)
+		{
+			auto rgb = colour.getRGB();
+			rgb.g = juce::jlimit (0.0f, 1.0f, val);
+			owner.set (DeepColor::fromRGBA (rgb.r, rgb.g, rgb.b, 1.0f));
+		}
+		else
+		{
+			jassertfalse;
+		}
+	}
 
     void updateIfNeeded()
     {
@@ -183,9 +314,9 @@ private:
     DeepColor& colour;
     const int edge;
 
-    struct HueSelectorMarker  : public Component
+	struct Parameter1DMarker  : public Component
     {
-        HueSelectorMarker()
+		Parameter1DMarker()
         {
             setInterceptsMouseClicks (false, false);
         }
@@ -212,9 +343,10 @@ private:
         }
     };
 
-    HueSelectorMarker marker;
+	Parameter1DMarker marker;
+	Params param;
 
-    JUCE_DECLARE_NON_COPYABLE (HueSelectorComp)
+    JUCE_DECLARE_NON_COPYABLE (Parameter1D)
 };
 
 //==============================================================================
@@ -370,16 +502,26 @@ ColorPicker::ColorPicker (int sectionsToShow, int edge, int gapAroundColourSpace
         addAndMakeVisible (previewComponent.get());
     }
 
+	for (auto& t : toggles)
+	{
+		t.reset (new juce::ToggleButton());
+		t->setRadioGroupId (1);
+		t->onClick = [this] { updateParameters(); };
+		addAndMakeVisible (*t);
+	}
+
+	toggles[0]->setToggleState (true, juce::dontSendNotification);
+
     if ((flags & showSliders) != 0)
     {
-        sliders[0].reset (new ColourComponentSlider (TRANS ("hue"), 360));
-        sliders[1].reset (new ColourComponentSlider (TRANS ("saturation"), 100));
-        sliders[2].reset (new ColourComponentSlider (TRANS ("brightness"), 100));
+        sliders[0].reset (new ColourComponentSlider (TRANS ("H"), 360));
+        sliders[1].reset (new ColourComponentSlider (TRANS ("S"), 100));
+        sliders[2].reset (new ColourComponentSlider (TRANS ("B"), 100));
 
-        sliders[3].reset (new ColourComponentSlider (TRANS ("red"), 255));
-        sliders[4].reset (new ColourComponentSlider (TRANS ("green"), 255));
-        sliders[5].reset (new ColourComponentSlider (TRANS ("blue"), 255));
-        sliders[6].reset (new ColourComponentSlider (TRANS ("alpha"), 255));
+        sliders[3].reset (new ColourComponentSlider (TRANS ("R"), 255));
+        sliders[4].reset (new ColourComponentSlider (TRANS ("G"), 255));
+        sliders[5].reset (new ColourComponentSlider (TRANS ("B"), 255));
+        sliders[6].reset (new ColourComponentSlider (TRANS ("A"), 255));
 
         for ( auto& slider : sliders )
             addAndMakeVisible (slider.get());
@@ -392,14 +534,15 @@ ColorPicker::ColorPicker (int sectionsToShow, int edge, int gapAroundColourSpace
 
     if ((flags & showColourspace) != 0)
     {
-        colourSpace.reset (new ColourSpaceView (*this, colour, gapAroundColourSpaceComponent));
-        hueSelector.reset (new HueSelectorComp (*this, colour, gapAroundColourSpaceComponent));
+		parameter2D.reset (new Parameter2D (*this, colour, gapAroundColourSpaceComponent));
+		parameter1D.reset (new Parameter1D (*this, colour, gapAroundColourSpaceComponent));
 
-        addAndMakeVisible (colourSpace.get());
-        addAndMakeVisible (hueSelector.get());
+        addAndMakeVisible (parameter2D.get());
+        addAndMakeVisible (parameter1D.get());
     }
 
     update (juce::dontSendNotification);
+	updateParameters();
 }
 
 ColorPicker::~ColorPicker()
@@ -430,6 +573,12 @@ void ColorPicker::setCurrentColour (DeepColor c, juce::NotificationType notifica
         colour = ((flags & showAlphaChannel) != 0) ? c : c.withAlpha (1.0f);
         update (notification);
     }
+}
+
+void ColorPicker::set (const DeepColor& newColour)
+{
+	colour = newColour.withAlpha (colour.getAlpha());
+	update (juce::sendNotification);
 }
 
 void ColorPicker::setHue (float newH)
@@ -468,13 +617,10 @@ void ColorPicker::update (juce::NotificationType notification)
         sliders[6]->setValue (colour.getAlpha() * 255, juce::dontSendNotification);
     }
 
-    DBG(juce::String::formatted ("HSB: %2.2f %2.2f %2.2f", colour.getHue(), colour.getSaturation(), colour.getBrightness()));
-    DBG(juce::String::formatted ("RGB: %2.2f %2.2f %2.2f", colour.getRed(), colour.getBlue(), colour.getGreen()));
-
-    if (colourSpace != nullptr)
+    if (parameter2D != nullptr)
     {
-        colourSpace->updateIfNeeded();
-        hueSelector->updateIfNeeded();
+		parameter2D->updateIfNeeded();
+		parameter1D->updateIfNeeded();
     }
 
     if (previewComponent != nullptr)
@@ -529,13 +675,13 @@ void ColorPicker::resized()
     {
         const int hueWidth = juce::jmin (50, proportionOfWidth (0.15f));
 
-        colourSpace->setBounds (edgeGap, y,
+		parameter2D->setBounds (edgeGap, y,
                                 getWidth() - hueWidth - edgeGap - 4,
                                 getHeight() - topSpace - sliderSpace - swatchSpace - edgeGap);
 
-        hueSelector->setBounds (colourSpace->getRight() + 4, y,
-                                getWidth() - edgeGap - (colourSpace->getRight() + 4),
-                                colourSpace->getHeight());
+		parameter1D->setBounds (parameter2D->getRight() + 4, y,
+                                getWidth() - edgeGap - (parameter2D->getRight() + 4),
+								parameter2D->getHeight());
 
         y = getHeight() - sliderSpace - swatchSpace - edgeGap;
     }
@@ -546,8 +692,13 @@ void ColorPicker::resized()
 
         for (int i = 0; i < numSliders; ++i)
         {
-            sliders[i]->setBounds (proportionOfWidth (0.2f), y,
-                                   proportionOfWidth (0.72f), sliderHeight - 2);
+			auto rc = juce::Rectangle<int> (proportionOfWidth (0.2f), y, proportionOfWidth (0.72f), sliderHeight - 2);
+
+			auto trc = rc.removeFromLeft (rc.getHeight() + 2);
+			if (i < std::ssize (toggles))
+				toggles[i]->setBounds (trc.translated (-sliderHeight, 0));
+
+			sliders[i]->setBounds (rc);
 
             y += sliderHeight;
         }
@@ -620,6 +771,40 @@ void ColorPicker::changeColour ( juce::Slider* slider )
 
         setCurrentColour (col);
     }
+}
+
+void ColorPicker::updateParameters()
+{
+	if (toggles[0]->getToggleState())
+	{
+		parameter1D->setParameter (Params::hue);
+		parameter2D->setParameters (Params::sat, Params::bri);
+	}
+	else if (toggles[1]->getToggleState())
+	{
+		parameter1D->setParameter (Params::sat);
+		parameter2D->setParameters (Params::hue, Params::bri);
+	}
+	else if (toggles[2]->getToggleState())
+	{
+		parameter1D->setParameter (Params::bri);
+		parameter2D->setParameters (Params::hue, Params::sat);
+	}
+	else if (toggles[3]->getToggleState())
+	{
+		parameter1D->setParameter (Params::red);
+		parameter2D->setParameters (Params::blue, Params::green);
+	}
+	else if (toggles[4]->getToggleState())
+	{
+		parameter1D->setParameter (Params::green);
+		parameter2D->setParameters (Params::blue, Params::red);
+	}
+	else if (toggles[5]->getToggleState())
+	{
+		parameter1D->setParameter (Params::blue);
+		parameter2D->setParameters (Params::red, Params::green);
+	}
 }
 
 //==============================================================================
