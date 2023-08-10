@@ -39,7 +39,7 @@ RGB hsbToRgb (const HSB& hsb)
 {
     auto h = hsb.h * 360.0f;
     auto c = hsb.b * hsb.s;
-    auto x = c * (1 - std::abs (std::fmod (h / 60, 2) - 1));
+    auto x = c * (1.0f - std::abs (std::fmod (h / 60, 2.0f) - 1.0f));
     auto m = hsb.b - c;
 
     auto r = 0.0f;
