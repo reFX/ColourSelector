@@ -11,4 +11,5 @@
 
 #include "refx_colorpicker.h"
 
+#include "Source/refx_DeepColor.cpp"
 #include "Source/refx_ColorPicker.cpp"

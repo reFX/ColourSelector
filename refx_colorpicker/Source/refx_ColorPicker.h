@@ -13,7 +13,7 @@ namespace reFX
     @tags{GUI}
 */
 class ColorPicker : public juce::Component,
-				    public juce::ChangeBroadcaster
+                    public juce::ChangeBroadcaster
 {
 public:
     //==============================================================================
@@ -39,7 +39,7 @@ public:
         gapAroundColourSpaceComponent indicates how much of a gap to put around the
         colourspace and hue selector components.
     */
-	ColorPicker (int flags = (showAlphaChannel | showColourAtTop | showSliders | showColourspace),
+    ColorPicker (int flags = (showAlphaChannel | showColourAtTop | showSliders | showColourspace),
                  int edgeGap = 4,
                  int gapAroundColourSpaceComponent = 7);
 
@@ -118,13 +118,13 @@ private:
     //==============================================================================
     class SwatchComponent;
 
-	juce::Colour colour;
+    juce::Colour colour;
     float h, s, v;
     std::unique_ptr<juce::Slider> sliders[7];
     std::unique_ptr<ColourSpaceView> colourSpace;
     std::unique_ptr<HueSelectorComp> hueSelector;
     std::unique_ptr<ColourPreviewComp> previewComponent;
-	juce::OwnedArray<SwatchComponent> swatchComponents;
+    juce::OwnedArray<SwatchComponent> swatchComponents;
     const int flags;
     int edgeGap;
 

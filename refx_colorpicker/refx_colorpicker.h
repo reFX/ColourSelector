@@ -8,14 +8,14 @@
 
  BEGIN_JUCE_MODULE_DECLARATION
 
-  ID:					refx_colorpicker
-  vendor:				reFX
-  version:				1.0.0
-  name:					reFX Color Picker
+  ID:                   refx_colorpicker
+  vendor:               reFX
+  version:              1.0.0
+  name:                 reFX Color Picker
   description:
-  minimumCppStandard:	17
+  minimumCppStandard:   17
 
-  dependencies:         juce_core juce_gui_basics 
+  dependencies:         juce_core juce_gui_basics
 
  END_JUCE_MODULE_DECLARATION
 
@@ -30,5 +30,5 @@
 #include <juce_core/juce_core.h>
 #include <juce_gui_basics/juce_gui_basics.h>
 
+#include "Source/refx_DeepColor.h"
 #include "Source/refx_ColorPicker.h"
-

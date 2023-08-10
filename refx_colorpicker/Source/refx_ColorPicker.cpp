@@ -8,9 +8,9 @@ struct ColourComponentSlider  : public juce::Slider
         setRange (0.0, double (max), 1.0);
     }
 
-	juce::String getTextFromValue (double value) override
+    juce::String getTextFromValue (double value) override
     {
-		return juce::String ((int) value);
+        return juce::String ((int) value);
     }
 
     double getValueFromText (const juce::String& text) override
@@ -38,7 +38,7 @@ public:
             auto height = getHeight() / 2;
             colours = juce::Image (juce::Image::RGB, width, height, false);
 
-			juce::Image::BitmapData pixels (colours, juce::Image::BitmapData::writeOnly);
+            juce::Image::BitmapData pixels (colours, juce::Image::BitmapData::writeOnly);
 
             for (int y = 0; y < height; ++y)
             {
@@ -54,7 +54,7 @@ public:
 
         g.setOpacity (1.0f);
         g.drawImageTransformed (colours,
-								juce::RectanglePlacement (juce::RectanglePlacement::stretchToFit)
+                                juce::RectanglePlacement (juce::RectanglePlacement::stretchToFit)
                                     .getTransformToFit (colours.getBounds().toFloat(),
                                                         getLocalBounds().reduced (edge).toFloat()),
                                 false);
@@ -92,13 +92,13 @@ public:
     }
 
 private:
-	ColorPicker& owner;
+    ColorPicker& owner;
     float& h;
     float& s;
     float& v;
     float lastHue = 0;
     const int edge;
-	juce::Image colours;
+    juce::Image colours;
 
     struct ColourSpaceMarker  : public Component
     {
@@ -142,7 +142,7 @@ public:
 
     void paint (juce::Graphics& g) override
     {
-		juce::ColourGradient cg;
+        juce::ColourGradient cg;
         cg.isRadial = false;
         cg.point1.setXY (0.0f, (float) edge);
         cg.point2.setXY (0.0f, (float) getHeight());
@@ -179,7 +179,7 @@ public:
     }
 
 private:
-	ColorPicker& owner;
+    ColorPicker& owner;
     float& h;
     const int edge;
 
@@ -195,7 +195,7 @@ private:
             auto cw = (float) getWidth();
             auto ch = (float) getHeight();
 
-			juce::Path p;
+            juce::Path p;
             p.addTriangle (1.0f, 1.0f,
                            cw * 0.3f, ch * 0.5f,
                            1.0f, ch - 1.0f);
@@ -231,23 +231,23 @@ public:
         auto col = owner.getSwatchColour (index);
 
         g.fillCheckerBoard (getLocalBounds().toFloat(), 6.0f, 6.0f,
-							juce::Colour (0xffdddddd).overlaidWith (col),
-							juce::Colour (0xffffffff).overlaidWith (col));
+                            juce::Colour (0xffdddddd).overlaidWith (col),
+                            juce::Colour (0xffffffff).overlaidWith (col));
     }
 
     void mouseDown (const juce::MouseEvent&) override
     {
-		juce::PopupMenu m;
+        juce::PopupMenu m;
         m.addItem (1, TRANS("Use this swatch as the current colour"));
         m.addSeparator();
         m.addItem (2, TRANS("Set this swatch to the current colour"));
 
         m.showMenuAsync (juce::PopupMenu::Options().withTargetComponent (this),
-						 juce::ModalCallbackFunction::forComponent (menuStaticCallback, this));
+                         juce::ModalCallbackFunction::forComponent (menuStaticCallback, this));
     }
 
 private:
-	ColorPicker& owner;
+    ColorPicker& owner;
     const int index;
 
     static void menuStaticCallback (int result, SwatchComponent* comp)
@@ -327,8 +327,8 @@ public:
     void paint (juce::Graphics& g) override
     {
         g.fillCheckerBoard (getLocalBounds().toFloat(), 10.0f, 10.0f,
-							juce::Colour (0xffdddddd).overlaidWith (currentColour),
-							juce::Colour (0xffffffff).overlaidWith (currentColour));
+                            juce::Colour (0xffdddddd).overlaidWith (currentColour),
+                            juce::Colour (0xffffffff).overlaidWith (currentColour));
     }
 
     void resized() override
@@ -345,12 +345,12 @@ private:
             owner.setCurrentColour (newColour);
     }
 
-	ColorPicker& owner;
+    ColorPicker& owner;
 
-	juce::Colour currentColour;
-	juce::Font labelFont { 14.0f, juce::Font::bold };
+    juce::Colour currentColour;
+    juce::Font labelFont { 14.0f, juce::Font::bold };
     int labelWidth = 0;
-	juce::Label colourLabel;
+    juce::Label colourLabel;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ColourPreviewComp)
 };
@@ -374,17 +374,17 @@ ColorPicker::ColorPicker (int sectionsToShow, int edge, int gapAroundColourSpace
 
     if ((flags & showSliders) != 0)
     {
-		sliders[0].reset (new ColourComponentSlider (TRANS ("hue"), 360));
-		sliders[1].reset (new ColourComponentSlider (TRANS ("saturation"), 100));
-		sliders[2].reset (new ColourComponentSlider (TRANS ("lightness"), 100));
+        sliders[0].reset (new ColourComponentSlider (TRANS ("hue"), 360));
+        sliders[1].reset (new ColourComponentSlider (TRANS ("saturation"), 100));
+        sliders[2].reset (new ColourComponentSlider (TRANS ("lightness"), 100));
 
-		sliders[3].reset (new ColourComponentSlider (TRANS ("red"), 255));
+        sliders[3].reset (new ColourComponentSlider (TRANS ("red"), 255));
         sliders[4].reset (new ColourComponentSlider (TRANS ("green"), 255));
         sliders[5].reset (new ColourComponentSlider (TRANS ("blue"), 255));
         sliders[6].reset (new ColourComponentSlider (TRANS ("alpha"), 255));
 
-		for ( auto& slider : sliders )
-			addAndMakeVisible (slider.get());
+        for ( auto& slider : sliders )
+            addAndMakeVisible (slider.get());
 
         sliders[6]->setVisible ((flags & showAlphaChannel) != 0);
 
@@ -463,9 +463,9 @@ void ColorPicker::update (juce::NotificationType notification)
 {
     if (sliders[0] != nullptr)
     {
-		sliders[0]->setValue ((int) (colour.getHue() * 360),    	juce::dontSendNotification);
-		sliders[1]->setValue ((int) (colour.getSaturation() * 100), juce::dontSendNotification);
-		sliders[2]->setValue ((int) (colour.getLightness() * 100),  juce::dontSendNotification);
+        sliders[0]->setValue ((int) (colour.getHue() * 360),        juce::dontSendNotification);
+        sliders[1]->setValue ((int) (colour.getSaturation() * 100), juce::dontSendNotification);
+        sliders[2]->setValue ((int) (colour.getLightness() * 100),  juce::dontSendNotification);
 
         sliders[3]->setValue ((int) colour.getRed(),   juce::dontSendNotification);
         sliders[4]->setValue ((int) colour.getGreen(), juce::dontSendNotification);
@@ -505,7 +505,7 @@ void ColorPicker::paint (juce::Graphics& g)
                 g.drawText (slider->getName() + ":",
                             0, slider->getY(),
                             slider->getX() - 8, slider->getHeight(),
-							juce::Justification::centredRight, false);
+                            juce::Justification::centredRight, false);
         }
     }
 }
@@ -602,24 +602,24 @@ void ColorPicker::resized()
 void ColorPicker::changeColour ( juce::Slider* slider )
 {
     if (sliders[0] == nullptr)
-		return;
+        return;
 
-	if (sliders[0].get() == slider || sliders[1].get() == slider || sliders[2].get() == slider)
-	{
-		auto col = juce::Colour::fromHSL (float (sliders[0]->getValue() / 360.0),
-										  float (sliders[1]->getValue() / 100.0),
-										  float (sliders[2]->getValue() / 100.0),
-										  float (sliders[6]->getValue() / 255.0));
+    if (sliders[0].get() == slider || sliders[1].get() == slider || sliders[2].get() == slider)
+    {
+        auto col = juce::Colour::fromHSL (float (sliders[0]->getValue() / 360.0),
+                                          float (sliders[1]->getValue() / 100.0),
+                                          float (sliders[2]->getValue() / 100.0),
+                                          float (sliders[6]->getValue() / 255.0));
 
-		setCurrentColour (col);
-	}
-	else
-	{
-		setCurrentColour (juce::Colour ((juce::uint8) sliders[3]->getValue(),
-										(juce::uint8) sliders[4]->getValue(),
-										(juce::uint8) sliders[5]->getValue(),
-										(juce::uint8) sliders[6]->getValue()));
-	}
+        setCurrentColour (col);
+    }
+    else
+    {
+        setCurrentColour (juce::Colour ((juce::uint8) sliders[3]->getValue(),
+                                        (juce::uint8) sliders[4]->getValue(),
+                                        (juce::uint8) sliders[5]->getValue(),
+                                        (juce::uint8) sliders[6]->getValue()));
+    }
 }
 
 //==============================================================================
