@@ -64,6 +64,14 @@ public:
     */
     void setCurrentColour (juce::Colour newColour, juce::NotificationType notificationType = juce::sendNotification);
 
+	/** Changes the colour that is currently being shown.
+
+		@param newColour           the new colour to show
+		@param notificationType    whether to send a notification of the change to listeners.
+								   A notification will only be sent if the colour has changed.
+	*/
+	void setCurrentColour (DeepColor newColour, juce::NotificationType notificationType = juce::sendNotification);
+
     //==============================================================================
     /** Tells the selector how many preset colour swatches you want to have on the component.
 
@@ -118,8 +126,7 @@ private:
     //==============================================================================
     class SwatchComponent;
 
-    juce::Colour colour;
-    float h, s, v;
+    DeepColor colour;
     std::unique_ptr<juce::Slider> sliders[7];
     std::unique_ptr<ColourSpaceView> colourSpace;
     std::unique_ptr<HueSelectorComp> hueSelector;
@@ -130,9 +137,8 @@ private:
 
     void setHue (float newH);
     void setSV (float newS, float newV);
-    void updateHSV();
     void update (juce::NotificationType);
-    void changeColour ( juce::Slider* );
+    void changeColour (juce::Slider*);
     void paint (juce::Graphics&) override;
     void resized() override;
 

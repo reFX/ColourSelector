@@ -79,17 +79,17 @@ public:
     /** Returns the red component of this colour.
         @returns a value between 0.0 and 1.0.
     */
-    float getRed() const noexcept                       { return rgb.r; }
+	float getRed() const noexcept;
 
     /** Returns the green component of this colour.
         @returns a value between 0.0 and 1.0.
     */
-    float getGreen() const noexcept                     { return rgb.g; }
+	float getGreen() const noexcept;
 
     /** Returns the blue component of this colour.
         @returns a value between 0.0 and 1.0.
     */
-    float getBlue() const noexcept                      { return rgb.b; }
+	float getBlue() const noexcept;
 
     /** Returns the red component of this colour as a floating point value.
         @returns a value between 0.0 and 1.0
@@ -101,6 +101,8 @@ public:
         Alpha of 0.0 is completely transparent, 1.0 is completely opaque.
     */
     float getAlpha() const noexcept                     { return a; }
+
+	DeepColor withAlpha (float newAlpha) const noexcept;
 
     //==============================================================================
     /** Returns the colour's hue component.
@@ -133,7 +135,7 @@ public:
 private:
     //==============================================================================
     float a = 0.0f;
-    RGB rgb;
+    HSB hsb;
 };
 
 } // namespace juce

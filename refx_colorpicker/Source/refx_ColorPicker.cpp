@@ -5,7 +5,7 @@ struct ColourComponentSlider  : public juce::Slider
 {
     ColourComponentSlider (const juce::String& name, int max)  : juce::Slider (name)
     {
-        setRange (0.0, double (max), 1.0);
+        setRange (0.0, double (max), 0.0);
     }
 
     juce::String getTextFromValue (double value) override
@@ -23,8 +23,8 @@ struct ColourComponentSlider  : public juce::Slider
 class ColorPicker::ColourSpaceView  : public Component
 {
 public:
-    ColourSpaceView (ColorPicker& cs, float& hue, float& sat, float& val, int edgeSize)
-        : owner (cs), h (hue), s (sat), v (val), edge (edgeSize)
+    ColourSpaceView (ColorPicker& cs, DeepColor& dc, int edgeSize)
+        : owner (cs), colour (dc), edge (edgeSize)
     {
         addAndMakeVisible (marker);
         setMouseCursor (juce::MouseCursor::CrosshairCursor);
@@ -47,7 +47,7 @@ public:
                 for (int x = 0; x < width; ++x)
                 {
                     auto sat = (float) x / (float) width;
-                    pixels.setPixelColour (x, y, juce::Colour (h, sat, val, 1.0f));
+                    pixels.setPixelColour (x, y, juce::Colour (colour.getHue(), sat, val, 1.0f));
                 }
             }
         }
@@ -75,9 +75,9 @@ public:
 
     void updateIfNeeded()
     {
-        if (! juce::approximatelyEqual (lastHue, h))
+        if (! juce::approximatelyEqual (lastHue, colour.getHue()))
         {
-            lastHue = h;
+            lastHue = colour.getHue();
             colours = {};
             repaint();
         }
@@ -93,9 +93,7 @@ public:
 
 private:
     ColorPicker& owner;
-    float& h;
-    float& s;
-    float& v;
+	DeepColor& colour;
     float lastHue = 0;
     const int edge;
     juce::Image colours;
@@ -123,8 +121,12 @@ private:
         auto markerSize = juce::jmax (14, edge * 2);
         auto area = getLocalBounds().reduced (edge);
 
-        marker.setBounds (juce::Rectangle<int> (markerSize, markerSize)
-                            .withCentre (area.getRelativePoint (s, 1.0f - v)));
+		auto h = 0.0f;
+		auto s = 0.0f;
+		auto b = 0.0f;
+		colour.getHSB (h, s, b);
+
+        marker.setBounds (juce::Rectangle<int> (markerSize, markerSize).withCentre (area.getRelativePoint (s, 1.0f - b)));
     }
 
     JUCE_DECLARE_NON_COPYABLE (ColourSpaceView)
@@ -134,8 +136,8 @@ private:
 class ColorPicker::HueSelectorComp  : public Component
 {
 public:
-    HueSelectorComp (ColorPicker& cs, float& hue, int edgeSize)
-        : owner (cs), h (hue), edge (edgeSize)
+    HueSelectorComp (ColorPicker& cs, DeepColor& dc, int edgeSize)
+        : owner (cs), colour (dc), edge (edgeSize)
     {
         addAndMakeVisible (marker);
     }
@@ -159,8 +161,12 @@ public:
         auto markerSize = juce::jmax (14, edge * 2);
         auto area = getLocalBounds().reduced (edge);
 
-        marker.setBounds (juce::Rectangle<int> (getWidth(), markerSize)
-                            .withCentre (area.getRelativePoint (0.5f, h)));
+		auto h = 0.0f;
+		auto s = 0.0f;
+		auto b = 0.0f;
+		colour.getHSB (h, s, b);
+
+        marker.setBounds (juce::Rectangle<int> (getWidth(), markerSize).withCentre (area.getRelativePoint (0.5f, h)));
     }
 
     void mouseDown (const juce::MouseEvent& e) override
@@ -180,7 +186,7 @@ public:
 
 private:
     ColorPicker& owner;
-    float& h;
+    DeepColor& colour;
     const int edge;
 
     struct HueSelectorMarker  : public Component
@@ -364,8 +370,6 @@ ColorPicker::ColorPicker (int sectionsToShow, int edge, int gapAroundColourSpace
     // not much point having a selector with no components in it!
     jassert ((flags & (showColourAtTop | showSliders | showColourspace)) != 0);
 
-    updateHSV();
-
     if ((flags & showColourAtTop) != 0)
     {
         previewComponent.reset (new ColourPreviewComp (*this, (flags & editableColour) != 0));
@@ -376,7 +380,7 @@ ColorPicker::ColorPicker (int sectionsToShow, int edge, int gapAroundColourSpace
     {
         sliders[0].reset (new ColourComponentSlider (TRANS ("hue"), 360));
         sliders[1].reset (new ColourComponentSlider (TRANS ("saturation"), 100));
-        sliders[2].reset (new ColourComponentSlider (TRANS ("lightness"), 100));
+        sliders[2].reset (new ColourComponentSlider (TRANS ("brightness"), 100));
 
         sliders[3].reset (new ColourComponentSlider (TRANS ("red"), 255));
         sliders[4].reset (new ColourComponentSlider (TRANS ("green"), 255));
@@ -394,8 +398,8 @@ ColorPicker::ColorPicker (int sectionsToShow, int edge, int gapAroundColourSpace
 
     if ((flags & showColourspace) != 0)
     {
-        colourSpace.reset (new ColourSpaceView (*this, h, s, v, gapAroundColourSpaceComponent));
-        hueSelector.reset (new HueSelectorComp (*this, h, gapAroundColourSpaceComponent));
+        colourSpace.reset (new ColourSpaceView (*this, colour, gapAroundColourSpaceComponent));
+        hueSelector.reset (new HueSelectorComp (*this, colour, gapAroundColourSpaceComponent));
 
         addAndMakeVisible (colourSpace.get());
         addAndMakeVisible (hueSelector.get());
@@ -413,7 +417,7 @@ ColorPicker::~ColorPicker()
 //==============================================================================
 juce::Colour ColorPicker::getCurrentColour() const
 {
-    return ((flags & showAlphaChannel) != 0) ? colour : colour.withAlpha ((juce::uint8) 0xff);
+    return ((flags & showAlphaChannel) != 0) ? colour.getColour() : colour.getColour().withAlpha ((juce::uint8) 0xff);
 }
 
 void ColorPicker::setCurrentColour (juce::Colour c, juce::NotificationType notification)
@@ -421,57 +425,63 @@ void ColorPicker::setCurrentColour (juce::Colour c, juce::NotificationType notif
     if (c != colour)
     {
         colour = ((flags & showAlphaChannel) != 0) ? c : c.withAlpha ((juce::uint8) 0xff);
-
-        updateHSV();
         update (notification);
     }
 }
 
-void ColorPicker::setHue (float newH)
+void ColorPicker::setCurrentColour (DeepColor c, juce::NotificationType notification)
 {
-    newH = juce::jlimit (0.0f, 1.0f, newH);
-
-    if (! juce::approximatelyEqual (h, newH))
-    {
-        h = newH;
-        colour = juce::Colour (h, s, v, colour.getFloatAlpha());
-        update (juce::dontSendNotification);
-    }
+	if (c != colour)
+	{
+		colour = ((flags & showAlphaChannel) != 0) ? c : c.withAlpha (1.0f);
+		update (notification);
+	}
 }
 
-void ColorPicker::setSV (float newS, float newV)
+void ColorPicker::setHue (float newH)
 {
-    newS = juce::jlimit (0.0f, 1.0f, newS);
-    newV = juce::jlimit (0.0f, 1.0f, newV);
+	auto h = 0.0f;
+	auto s = 0.0f;
+	auto b = 0.0f;
+	colour.getHSB (h, s, b);
 
-    if (! juce::approximatelyEqual (s, newS) || ! juce::approximatelyEqual (v, newV))
-    {
-        s = newS;
-        v = newV;
-        colour = juce::Colour (h, s, v, colour.getFloatAlpha());
-        update (juce::dontSendNotification);
-    }
+    h = juce::jlimit (0.0f, 1.0f, newH);
+
+	colour = DeepColor::fromHSB (h, s, b, colour.getAlpha());
+	update (juce::sendNotification);
+}
+
+void ColorPicker::setSV (float newS, float newB)
+{
+	auto h = 0.0f;
+	auto s = 0.0f;
+	auto b = 0.0f;
+	colour.getHSB (h, s, b);
+
+    s = juce::jlimit (0.0f, 1.0f, newS);
+    b = juce::jlimit (0.0f, 1.0f, newB);
+
+    colour = DeepColor::fromHSB (h, s, b, colour.getAlpha());
+    update (juce::sendNotification);
 }
 
 //==============================================================================
-void ColorPicker::updateHSV()
-{
-    colour.getHSB (h, s, v);
-}
-
 void ColorPicker::update (juce::NotificationType notification)
 {
     if (sliders[0] != nullptr)
     {
-        sliders[0]->setValue ((int) (colour.getHue() * 360),        juce::dontSendNotification);
-        sliders[1]->setValue ((int) (colour.getSaturation() * 100), juce::dontSendNotification);
-        sliders[2]->setValue ((int) (colour.getLightness() * 100),  juce::dontSendNotification);
+        sliders[0]->setValue (colour.getHue() * 360,        juce::dontSendNotification);
+        sliders[1]->setValue (colour.getSaturation() * 100, juce::dontSendNotification);
+        sliders[2]->setValue (colour.getBrightness() * 100, juce::dontSendNotification);
 
-        sliders[3]->setValue ((int) colour.getRed(),   juce::dontSendNotification);
-        sliders[4]->setValue ((int) colour.getGreen(), juce::dontSendNotification);
-        sliders[5]->setValue ((int) colour.getBlue(),  juce::dontSendNotification);
-        sliders[6]->setValue ((int) colour.getAlpha(), juce::dontSendNotification);
+        sliders[3]->setValue (colour.getRed() * 255,   juce::dontSendNotification);
+        sliders[4]->setValue (colour.getGreen() * 255, juce::dontSendNotification);
+        sliders[5]->setValue (colour.getBlue() * 255,  juce::dontSendNotification);
+        sliders[6]->setValue (colour.getAlpha() * 255, juce::dontSendNotification);
     }
+
+	DBG(juce::String::formatted ("HSB: %2.2f %2.2f %2.2f", colour.getHue(), colour.getSaturation(), colour.getBrightness()));
+	DBG(juce::String::formatted ("RGB: %2.2f %2.2f %2.2f", colour.getRed(), colour.getBlue(), colour.getGreen()));
 
     if (colourSpace != nullptr)
     {
@@ -606,19 +616,21 @@ void ColorPicker::changeColour ( juce::Slider* slider )
 
     if (sliders[0].get() == slider || sliders[1].get() == slider || sliders[2].get() == slider)
     {
-        auto col = juce::Colour::fromHSL (float (sliders[0]->getValue() / 360.0),
-                                          float (sliders[1]->getValue() / 100.0),
-                                          float (sliders[2]->getValue() / 100.0),
-                                          float (sliders[6]->getValue() / 255.0));
+        auto col = DeepColor::fromHSB (float (sliders[0]->getValue() / 360.0),
+									   float (sliders[1]->getValue() / 100.0),
+                                       float (sliders[2]->getValue() / 100.0),
+                                       float (sliders[6]->getValue() / 255.0));
 
         setCurrentColour (col);
     }
     else
     {
-        setCurrentColour (juce::Colour ((juce::uint8) sliders[3]->getValue(),
-                                        (juce::uint8) sliders[4]->getValue(),
-                                        (juce::uint8) sliders[5]->getValue(),
-                                        (juce::uint8) sliders[6]->getValue()));
+		auto col = DeepColor::fromRGBA (float (sliders[3]->getValue() / 255.0),
+									    float (sliders[4]->getValue() / 255.0),
+									    float (sliders[5]->getValue() / 255.0),
+									    float (sliders[6]->getValue() / 255.0));
+
+		setCurrentColour (col);
     }
 }
 
