@@ -3,6 +3,9 @@ namespace reFX
 
 struct RGB
 {
+    RGB() = default;
+    RGB (float r_, float g_, float b_) : r (r_), g (g_), b (b_) {}
+
     float r = 0.0f;
     float g = 0.0f;
     float b = 0.0f;
@@ -10,6 +13,9 @@ struct RGB
 
 struct HSB
 {
+    HSB() = default;
+    HSB (float h_, float s_, float b_) : h (h_), s (s_), b (b_) {}
+
     float h = 0.0f;
     float s = 0.0f;
     float b = 0.0f;
@@ -79,17 +85,17 @@ public:
     /** Returns the red component of this colour.
         @returns a value between 0.0 and 1.0.
     */
-	float getRed() const noexcept;
+    float getRed() const noexcept;
 
     /** Returns the green component of this colour.
         @returns a value between 0.0 and 1.0.
     */
-	float getGreen() const noexcept;
+    float getGreen() const noexcept;
 
     /** Returns the blue component of this colour.
         @returns a value between 0.0 and 1.0.
     */
-	float getBlue() const noexcept;
+    float getBlue() const noexcept;
 
     /** Returns the red component of this colour as a floating point value.
         @returns a value between 0.0 and 1.0
@@ -102,7 +108,7 @@ public:
     */
     float getAlpha() const noexcept                     { return a; }
 
-	DeepColor withAlpha (float newAlpha) const noexcept;
+    DeepColor withAlpha (float newAlpha) const noexcept;
 
     //==============================================================================
     /** Returns the colour's hue component.
@@ -123,9 +129,12 @@ public:
     /** Returns the colour's hue, saturation and brightness components all at once.
         The values returned are in the range 0.0 to 1.0
     */
-    void getHSB (float& hue,
-                 float& saturation,
-                 float& brightness) const noexcept;
+    HSB getHSB() const noexcept;
+
+    /** Returns the colour's red, blue and green components all at once.
+        The values returned are in the range 0.0 to 1.0
+    */
+    RGB getRGB() const noexcept;
 
     /** Returns a juce::Colour */
     juce::Colour getColour () const;
@@ -135,7 +144,7 @@ public:
 private:
     //==============================================================================
     float a = 0.0f;
-    HSB hsb;
+    std::variant<HSB, RGB> col;
 };
 
 } // namespace juce

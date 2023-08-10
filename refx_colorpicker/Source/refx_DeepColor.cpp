@@ -37,7 +37,7 @@ HSB rgbToHsb (const RGB& rgb)
 
 RGB hsbToRgb (const HSB& hsb)
 {
-	auto h = hsb.h * 360.0f;
+    auto h = hsb.h * 360.0f;
     auto c = hsb.b * hsb.s;
     auto x = c * (1 - std::abs (std::fmod (h / 60, 2) - 1));
     auto m = hsb.b - c;
@@ -50,37 +50,37 @@ RGB hsbToRgb (const HSB& hsb)
     {
         r = c;
         g = x;
-		b = 0;
+        b = 0;
     }
     else if (h < 120)
     {
         r = x;
         g = c;
-		b = 0;
+        b = 0;
     }
     else if (h < 180)
     {
         r = 0;
         g = c;
-		b = x;
+        b = x;
     }
     else if (h < 240)
     {
         r = 0;
         g = x;
-		b = c;
+        b = c;
     }
     else if (h < 300)
     {
         r = x;
         g = 0;
-		b = c;
+        b = c;
     }
     else
     {
         r = c;
         g = 0;
-		b = x;
+        b = x;
     }
 
     return { r + m, g + m, b + m };
@@ -90,9 +90,9 @@ RGB hsbToRgb (const HSB& hsb)
 bool DeepColor::operator== (const DeepColor& other) const noexcept
 {
     return juce::approximatelyEqual (a, other.a) &&
-           juce::approximatelyEqual (hsb.h, other.hsb.h) &&
-           juce::approximatelyEqual (hsb.s, other.hsb.s) &&
-           juce::approximatelyEqual (hsb.b, other.hsb.b);
+           juce::approximatelyEqual (getRed(), other.getRed()) &&
+           juce::approximatelyEqual (getBlue(), other.getBlue()) &&
+           juce::approximatelyEqual (getGreen(), other.getGreen());
 }
 
 bool DeepColor::operator!= (const DeepColor& other) const noexcept
@@ -101,15 +101,15 @@ bool DeepColor::operator!= (const DeepColor& other) const noexcept
 }
 
 //==============================================================================
-DeepColor::DeepColor (juce::uint32 col) noexcept
+DeepColor::DeepColor (juce::uint32 c) noexcept
 {
-	a = (((col >> 24) & 0xff) / 255.0f);
-	hsb = rgbToHsb ({(((col >> 16) & 0xff) / 255.0f), (((col >> 8)  & 0xff) / 255.0f), (((col >> 0)  & 0xff) / 255.0f)});
+    a = (((c >> 24) & 0xff) / 255.0f);
+    col = RGB ((((c >> 16) & 0xff) / 255.0f), (((c >> 8)  & 0xff) / 255.0f), (((c >> 0)  & 0xff) / 255.0f));
 }
 
 DeepColor::DeepColor (const juce::Colour& c)
 {
-	hsb = rgbToHsb ({c.getFloatRed(), c.getFloatGreen(), c.getFloatBlue()});
+    col = RGB ({c.getFloatRed(), c.getFloatGreen(), c.getFloatBlue()});
     a = c.getFloatAlpha();
 }
 
@@ -117,7 +117,7 @@ DeepColor DeepColor::fromRGB (float red, float green, float blue) noexcept
 {
     DeepColor c;
     c.a = 1.0f;
-	c.hsb = rgbToHsb ({red, green, blue});
+    c.col = RGB (red, green, blue);
     return c;
 }
 
@@ -125,7 +125,7 @@ DeepColor DeepColor::fromRGBA (float red, float green, float blue, float alpha) 
 {
     DeepColor c;
     c.a = alpha;
-	c.hsb = rgbToHsb ({red, green, blue});
+    c.col = RGB (red, green, blue);
     return c;
 }
 
@@ -133,25 +133,40 @@ DeepColor DeepColor::fromHSB (float hue, float saturation, float brightness, flo
 {
     DeepColor c;
     c.a = alpha;
-    c.hsb = {hue, saturation, brightness};
+    c.col = HSB (hue, saturation, brightness);
     return c;
 }
 
 //==============================================================================
-void DeepColor::getHSB (float& h, float& s, float& b) const noexcept
+HSB DeepColor::getHSB() const noexcept
 {
-    h = hsb.h;
-    s = hsb.s;
-    b = hsb.b;
+    if (auto hsb = std::get_if<HSB>(&col))
+        return *hsb;
+    else if (auto rgb = std::get_if<RGB>(&col))
+        return rgbToHsb (*rgb);
+
+    jassertfalse;
+    return {};
 }
 
-float DeepColor::getRed() const noexcept           { return hsbToRgb (hsb).r; }
-float DeepColor::getGreen() const noexcept         { return hsbToRgb (hsb).g; }
-float DeepColor::getBlue() const noexcept          { return hsbToRgb (hsb).b; }
+RGB DeepColor::getRGB() const noexcept
+{
+    if (auto hsb = std::get_if<HSB>(&col))
+        return hsbToRgb (*hsb);
+    else if (auto rgb = std::get_if<RGB>(&col))
+        return *rgb;
 
-float DeepColor::getHue() const noexcept           { return hsb.h; }
-float DeepColor::getSaturation() const noexcept    { return hsb.s; }
-float DeepColor::getBrightness() const noexcept    { return hsb.b; }
+    jassertfalse;
+    return {};
+}
+
+float DeepColor::getRed() const noexcept           { return getRGB().r; }
+float DeepColor::getGreen() const noexcept         { return getRGB().g; }
+float DeepColor::getBlue() const noexcept          { return getRGB().b; }
+
+float DeepColor::getHue() const noexcept           { return getHSB().h; }
+float DeepColor::getSaturation() const noexcept    { return getHSB().s; }
+float DeepColor::getBrightness() const noexcept    { return getHSB().b; }
 
 juce::Colour DeepColor::getColour () const
 {
@@ -160,9 +175,9 @@ juce::Colour DeepColor::getColour () const
 
 DeepColor DeepColor::withAlpha (float newAlpha) const noexcept
 {
-	auto c = *this;
-	c.a = newAlpha;
-	return c;
+    auto c = *this;
+    c.a = newAlpha;
+    return c;
 }
 
 }

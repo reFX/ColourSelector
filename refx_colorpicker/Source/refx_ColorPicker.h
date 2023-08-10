@@ -64,13 +64,13 @@ public:
     */
     void setCurrentColour (juce::Colour newColour, juce::NotificationType notificationType = juce::sendNotification);
 
-	/** Changes the colour that is currently being shown.
+    /** Changes the colour that is currently being shown.
 
-		@param newColour           the new colour to show
-		@param notificationType    whether to send a notification of the change to listeners.
-								   A notification will only be sent if the colour has changed.
-	*/
-	void setCurrentColour (DeepColor newColour, juce::NotificationType notificationType = juce::sendNotification);
+        @param newColour           the new colour to show
+        @param notificationType    whether to send a notification of the change to listeners.
+                                   A notification will only be sent if the colour has changed.
+    */
+    void setCurrentColour (DeepColor newColour, juce::NotificationType notificationType = juce::sendNotification);
 
     //==============================================================================
     /** Tells the selector how many preset colour swatches you want to have on the component.
