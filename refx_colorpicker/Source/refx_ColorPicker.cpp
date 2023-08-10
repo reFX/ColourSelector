@@ -41,24 +41,7 @@ public:
     void paint (juce::Graphics& g) override
     {
         if (colours.isNull())
-        {
-            auto width = getWidth() / 2;
-            auto height = getHeight() / 2;
-            colours = juce::Image (juce::Image::RGB, width, height, false);
-
-            juce::Image::BitmapData pixels (colours, juce::Image::BitmapData::writeOnly);
-
-            for (int y = 0; y < height; ++y)
-            {
-                auto val = 1.0f - (float) y / (float) height;
-
-                for (int x = 0; x < width; ++x)
-                {
-                    auto sat = (float) x / (float) width;
-                    pixels.setPixelColour (x, y, juce::Colour (colour.getHue(), sat, val, 1.0f));
-                }
-            }
-        }
+			updateImage();
 
         g.setOpacity (1.0f);
         g.drawImageTransformed (colours,
@@ -67,6 +50,76 @@ public:
                                                         getLocalBounds().reduced (edge).toFloat()),
                                 false);
     }
+
+	void updateImage()
+	{
+		auto width = getWidth() / 2;
+		auto height = getHeight() / 2;
+		colours = juce::Image (juce::Image::RGB, width, height, false);
+
+		juce::Image::BitmapData pixels (colours, juce::Image::BitmapData::writeOnly);
+
+		for (int y = 0; y < height; ++y)
+		{
+			auto yVal = 1.0f - (float) y / (float) height;
+
+			for (int x = 0; x < width; ++x)
+			{
+				auto xVal = (float) x / (float) width;
+
+				auto c = owner.colour;
+
+				auto set = [&] (Params param, float val)
+				{
+					if (param == Params::hue)
+					{
+						auto hsb = c.getHSB();
+						hsb.h = juce::jlimit (0.0f, 1.0f, val);
+						c = DeepColor (hsb);
+					}
+					else if (param == Params::sat)
+					{
+						auto hsb = c.getHSB();
+						hsb.s = juce::jlimit (0.0f, 1.0f, val);
+						c = DeepColor (hsb);
+					}
+					else if (param == Params::bri)
+					{
+						auto hsb = c.getHSB();
+						hsb.b = juce::jlimit (0.0f, 1.0f, val);
+						c = DeepColor (hsb);
+					}
+					else if (param == Params::red)
+					{
+						auto rgb = c.getRGB();
+						rgb.r = juce::jlimit (0.0f, 1.0f, val);
+						c = DeepColor (rgb);
+					}
+					else if (param == Params::blue)
+					{
+						auto rgb = c.getRGB();
+						rgb.b = juce::jlimit (0.0f, 1.0f, val);
+						c = DeepColor (rgb);
+					}
+					else if (param == Params::green)
+					{
+						auto rgb = c.getRGB();
+						rgb.g = juce::jlimit (0.0f, 1.0f, val);
+						c = DeepColor (rgb);
+					}
+					else
+					{
+						jassertfalse;
+					}
+				};
+
+				set (xParam, xVal);
+				set (yParam, yVal);
+
+				pixels.setPixelColour (x, y, c.getColour());
+			}
+		}
+	}
 
     void mouseDown (const juce::MouseEvent& e) override
     {
