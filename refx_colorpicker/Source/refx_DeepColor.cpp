@@ -109,14 +109,14 @@ DeepColor::DeepColor (juce::uint32 c) noexcept
 
 DeepColor::DeepColor (HSB hsb, float alpha) noexcept
 {
-	a = alpha;
-	col = hsb;
+    a = alpha;
+    col = hsb;
 }
 
 DeepColor::DeepColor (RGB rgb, float alpha) noexcept
 {
-	a = alpha;
-	col = rgb;
+    a = alpha;
+    col = rgb;
 }
 
 DeepColor::DeepColor (const juce::Colour& c)

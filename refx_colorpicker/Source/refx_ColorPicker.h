@@ -121,23 +121,23 @@ public:
 private:
     //==============================================================================
     class SwatchComponent;
-	class Parameter2D;
-	class Parameter1D;
-	class ColourPreviewComp;
+    class Parameter2D;
+    class Parameter1D;
+    class ColourPreviewComp;
 
-	enum class Params
-	{
-		hue,
-		sat,
-		bri,
+    enum class Params
+    {
+        hue,
+        sat,
+        bri,
 
-		red,
-		green,
-		blue,
-	};
+        red,
+        green,
+        blue,
+    };
 
     DeepColor colour;
-	std::unique_ptr<juce::ToggleButton> toggles[6];
+    std::unique_ptr<juce::ToggleButton> toggles[6];
     std::unique_ptr<juce::Slider> sliders[7];
     std::unique_ptr<Parameter2D> parameter2D;
     std::unique_ptr<Parameter1D> parameter1D;
@@ -146,7 +146,7 @@ private:
     const int flags;
     int edgeGap;
 
-	void updateParameters();
+    void updateParameters();
     void setHue (float newH);
     void setSV (float newS, float newV);
     void update (juce::NotificationType);
@@ -154,7 +154,7 @@ private:
     void paint (juce::Graphics&) override;
     void resized() override;
 
-	void set (const DeepColor&);
+    void set (const DeepColor&);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ColorPicker)
 };

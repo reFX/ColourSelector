@@ -54,9 +54,9 @@ public:
     */
     explicit DeepColor (juce::uint32 argb) noexcept;
 
-	explicit DeepColor (HSB hsb, float alpha = 1.0f) noexcept;
+    explicit DeepColor (HSB hsb, float alpha = 1.0f) noexcept;
 
-	explicit DeepColor (RGB rgb, float alpha = 1.0f) noexcept;
+    explicit DeepColor (RGB rgb, float alpha = 1.0f) noexcept;
 
     /** Creates an opaque colour using float red, green and blue values */
     static DeepColor fromRGB (float red, float green, float blue) noexcept;
