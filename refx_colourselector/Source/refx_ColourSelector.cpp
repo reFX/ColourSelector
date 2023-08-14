@@ -655,6 +655,38 @@ ColourSelector::ColourSelector (int sectionsToShow, int edge, int gapAroundColou
         addAndMakeVisible (parameter1D.get());
     }
 
+    if ((flags & showHexEdit) != 0)
+    {
+        hex = std::make_unique<juce::TextEditor>();
+        hex->setJustification (juce::Justification::centred);
+        hex->onTextChange = [this]
+        {
+            auto hcol = hex->getText();
+
+            // convert hex3 and hex4 formats to hex6 and hex8
+            if ( hcol.length () == 3 )
+                hcol = juce::String::formatted ( "%c%c%c%c%c%c", hcol[ 0 ], hcol[ 0 ], hcol[ 1 ], hcol[ 1 ], hcol[ 2 ], hcol[ 2 ] );
+            else if ( hcol.length () == 4 )
+                hcol = juce::String::formatted ( "%c%c%c%c%c%c%c%c", hcol[ 0 ], hcol[ 0 ], hcol[ 1 ], hcol[ 1 ], hcol[ 2 ], hcol[ 2 ], hcol[ 3 ], hcol[ 3 ] );
+
+            // Add missing alpha
+            if ( hcol.length () == 6 )
+                hcol += juce::String ( "ff" );
+
+            // Convert rgba to argb (JUCE is weird)
+            if ( hcol.length () == 8 )
+            {
+                colour = juce::Colour::fromString (hcol.substring (6) + hcol.substring (0, 6));
+                update (juce::sendNotification);
+            }
+        };
+        hex->onFocusLost = [this]
+        {
+            update (juce::sendNotification);
+        };
+        addAndMakeVisible (*hex);
+    }
+
     update (juce::dontSendNotification);
     updateParameters();
 }
@@ -716,6 +748,9 @@ void ColourSelector::update (juce::NotificationType notification)
     if (alphaSlider)
         alphaSlider->setValue (colour.getAlpha() * 255, juce::dontSendNotification);
 
+    if (hex && ! hex->hasKeyboardFocus (true))
+        hex->setText (colour.getColour().toDisplayString ((flags & showAlphaChannel) != 0), juce::dontSendNotification);
+
     if (parameter2D != nullptr)
     {
         parameter2D->updateIfNeeded();
@@ -758,7 +793,7 @@ void ColourSelector::resized()
     const int swatchesPerRow = 8;
     const int swatchHeight = 22;
 
-    const float numSliders = sliders.size() + (hueSlider && redSlider ? 0.5f : 0.0f) + (alphaSlider ? 0.5f : 0.0f);
+    const float numSliders = sliders.size() + (hueSlider && redSlider ? 0.5f : 0.0f) + (alphaSlider ? 0.5f : 0.0f) + (hex ? 1.0f : 0.0f);
     const int numSwatches = getNumSwatches();
 
     const int swatchSpace = numSwatches > 0 ? edgeGap + swatchHeight * ((numSwatches + 7) / swatchesPerRow) : 0;
@@ -785,10 +820,10 @@ void ColourSelector::resized()
         y = getHeight() - sliderSpace - swatchSpace - edgeGap;
     }
 
+    auto sliderHeight = juce::jmax (4, int (sliderSpace / numSliders));
+
     if (sliders.size() > 0)
     {
-        auto sliderHeight = juce::jmax (4, int (sliderSpace / numSliders));
-
         for (auto i = 0; auto slider : sliders)
         {
             auto rc = juce::Rectangle<int> (proportionOfWidth (0.2f), y, proportionOfWidth (0.72f), sliderHeight - 2);
@@ -809,6 +844,12 @@ void ColourSelector::resized()
 
             ++i;
         }
+    }
+
+    if (hex)
+    {
+        auto rc = juce::Rectangle<int> (proportionOfWidth (0.2f) + sliderHeight, y, 80, sliderHeight - 2);
+        hex->setBounds (rc);
     }
 
     if (numSwatches > 0)

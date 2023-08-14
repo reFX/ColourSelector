@@ -31,7 +31,8 @@ public:
         showToggle          = 1 << 5,   /**< if set, radiobuttons are shown to select colourspace edit mode */
         showReset           = 1 << 6,   /**< if set, show a button to reset colour. */
         showOriginalColour  = 1 << 7,   /**< if set, show a swatch with original colour and current. */
-        showColourspace     = 1 << 8    /**< if set, a big HSV selector is shown. */
+        showColourspace     = 1 << 8,   /**< if set, a big HSV selector is shown. */
+        showHexEdit         = 1 << 9,   /**< if set, a TextEditor with the colour in hex is shown **/
     };
 
     //==============================================================================
@@ -149,6 +150,7 @@ private:
     juce::OwnedArray<juce::Slider> sliders;
     std::unique_ptr<Parameter2D> parameter2D;
     std::unique_ptr<Parameter1D> parameter1D;
+    std::unique_ptr<juce::TextEditor> hex;
     std::unique_ptr<ColourPreviewComp> previewComponent;
     juce::OwnedArray<SwatchComponent> swatchComponents;
     const int flags;
