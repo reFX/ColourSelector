@@ -676,27 +676,6 @@ void ColourSelector::set (const DeepColour& newColour)
     update (juce::sendNotification);
 }
 
-void ColourSelector::setHue (float newH)
-{
-    auto hsb = colour.getHSB();
-
-    hsb.h = juce::jlimit (0.0f, 1.0f, newH);
-
-    colour = DeepColour::fromHSB (hsb.h, hsb.s, hsb.b, colour.getAlpha());
-    update (juce::sendNotification);
-}
-
-void ColourSelector::setSV (float newS, float newB)
-{
-    auto hsb = colour.getHSB();
-
-    hsb.s = juce::jlimit (0.0f, 1.0f, newS);
-    hsb.b = juce::jlimit (0.0f, 1.0f, newB);
-
-    colour = DeepColour::fromHSB (hsb.h, hsb.s, hsb.b, colour.getAlpha());
-    update (juce::sendNotification);
-}
-
 //==============================================================================
 void ColourSelector::update (juce::NotificationType notification)
 {

@@ -151,8 +151,6 @@ private:
     int edgeGap;
 
     void updateParameters();
-    void setHue (float newH);
-    void setSV (float newS, float newV);
     void update (juce::NotificationType);
     void changeColour (juce::Slider*);
     void paint (juce::Graphics&) override;
