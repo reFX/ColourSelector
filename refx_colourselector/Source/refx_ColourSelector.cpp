@@ -20,10 +20,10 @@ struct ColourComponentSlider  : public juce::Slider
 };
 
 //==============================================================================
-class ColorPicker::Parameter2D : public Component
+class ColourSelector::Parameter2D : public Component
 {
 public:
-    Parameter2D (ColorPicker& cs, DeepColor& dc, int edgeSize)
+    Parameter2D (ColourSelector& cs, DeepColour& dc, int edgeSize)
         : owner (cs), colour (dc), edge (edgeSize)
     {
         addAndMakeVisible (marker);
@@ -75,37 +75,37 @@ public:
                     {
                         auto hsb = c.getHSB();
                         hsb.h = juce::jlimit (0.0f, 1.0f, val);
-                        c = DeepColor (hsb);
+                        c = DeepColour (hsb);
                     }
                     else if (param == Params::sat)
                     {
                         auto hsb = c.getHSB();
                         hsb.s = juce::jlimit (0.0f, 1.0f, val);
-                        c = DeepColor (hsb);
+                        c = DeepColour (hsb);
                     }
                     else if (param == Params::bri)
                     {
                         auto hsb = c.getHSB();
                         hsb.b = juce::jlimit (0.0f, 1.0f, val);
-                        c = DeepColor (hsb);
+                        c = DeepColour (hsb);
                     }
                     else if (param == Params::red)
                     {
                         auto rgb = c.getRGB();
                         rgb.r = juce::jlimit (0.0f, 1.0f, val);
-                        c = DeepColor (rgb);
+                        c = DeepColour (rgb);
                     }
                     else if (param == Params::blue)
                     {
                         auto rgb = c.getRGB();
                         rgb.b = juce::jlimit (0.0f, 1.0f, val);
-                        c = DeepColor (rgb);
+                        c = DeepColour (rgb);
                     }
                     else if (param == Params::green)
                     {
                         auto rgb = c.getRGB();
                         rgb.g = juce::jlimit (0.0f, 1.0f, val);
-                        c = DeepColor (rgb);
+                        c = DeepColour (rgb);
                     }
                     else
                     {
@@ -137,37 +137,37 @@ public:
             {
                 auto hsb = colour.getHSB();
                 hsb.h = juce::jlimit (0.0f, 1.0f, val);
-                owner.set (DeepColor::fromHSB (hsb.h, hsb.s, hsb.b, 1.0f));
+                owner.set (DeepColour::fromHSB (hsb.h, hsb.s, hsb.b, 1.0f));
             }
             else if (param == Params::sat)
             {
                 auto hsb = colour.getHSB();
                 hsb.s = juce::jlimit (0.0f, 1.0f, val);
-                owner.set (DeepColor::fromHSB (hsb.h, hsb.s, hsb.b, 1.0f));
+                owner.set (DeepColour::fromHSB (hsb.h, hsb.s, hsb.b, 1.0f));
             }
             else if (param == Params::bri)
             {
                 auto hsb = colour.getHSB();
                 hsb.b = juce::jlimit (0.0f, 1.0f, val);
-                owner.set (DeepColor::fromHSB (hsb.h, hsb.s, hsb.b, 1.0f));
+                owner.set (DeepColour::fromHSB (hsb.h, hsb.s, hsb.b, 1.0f));
             }
             else if (param == Params::red)
             {
                 auto rgb = colour.getRGB();
                 rgb.r = juce::jlimit (0.0f, 1.0f, val);
-                owner.set (DeepColor::fromRGBA (rgb.r, rgb.g, rgb.b, 1.0f));
+                owner.set (DeepColour::fromRGBA (rgb.r, rgb.g, rgb.b, 1.0f));
             }
             else if (param == Params::blue)
             {
                 auto rgb = colour.getRGB();
                 rgb.b = juce::jlimit (0.0f, 1.0f, val);
-                owner.set (DeepColor::fromRGBA (rgb.r, rgb.g, rgb.b, 1.0f));
+                owner.set (DeepColour::fromRGBA (rgb.r, rgb.g, rgb.b, 1.0f));
             }
             else if (param == Params::green)
             {
                 auto rgb = colour.getRGB();
                 rgb.g = juce::jlimit (0.0f, 1.0f, val);
-                owner.set (DeepColor::fromRGBA (rgb.r, rgb.g, rgb.b, 1.0f));
+                owner.set (DeepColour::fromRGBA (rgb.r, rgb.g, rgb.b, 1.0f));
             }
             else
             {
@@ -193,8 +193,8 @@ public:
     }
 
 private:
-    ColorPicker& owner;
-    DeepColor& colour;
+    ColourSelector& owner;
+    DeepColour& colour;
     const int edge;
     juce::Image colours;
     Params xParam = Params::hue;
@@ -249,10 +249,10 @@ private:
 };
 
 //==============================================================================
-class ColorPicker::Parameter1D  : public Component
+class ColourSelector::Parameter1D  : public Component
 {
 public:
-    Parameter1D (ColorPicker& cs, DeepColor& dc, int edgeSize)
+    Parameter1D (ColourSelector& cs, DeepColour& dc, int edgeSize)
         : owner (cs), colour (dc), edge (edgeSize)
     {
         addAndMakeVisible (marker);
@@ -279,37 +279,37 @@ public:
             {
                 auto hsb = c.getHSB();
                 hsb.h = 1.0f - i;
-                cg.addColour (i, DeepColor (hsb).getColour());
+                cg.addColour (i, DeepColour (hsb).getColour());
             }
             else if (param == Params::sat)
             {
                 auto hsb = c.getHSB();
                 hsb.s = 1.0f - i;
-                cg.addColour (i, DeepColor (hsb).getColour());
+                cg.addColour (i, DeepColour (hsb).getColour());
             }
             else if (param == Params::bri)
             {
                 auto hsb = c.getHSB();
                 hsb.b = 1.0f - i;
-                cg.addColour (i, DeepColor (hsb).getColour());
+                cg.addColour (i, DeepColour (hsb).getColour());
             }
             else if (param == Params::red)
             {
                 auto rgb = c.getRGB();
                 rgb.r = 1.0f - i;
-                cg.addColour (i, DeepColor (rgb).getColour());
+                cg.addColour (i, DeepColour (rgb).getColour());
             }
             else if (param == Params::blue)
             {
                 auto rgb = c.getRGB();
                 rgb.b = 1.0f - i;
-                cg.addColour (i, DeepColor (rgb).getColour());
+                cg.addColour (i, DeepColour (rgb).getColour());
             }
             else if (param == Params::green)
             {
                 auto rgb = c.getRGB();
                 rgb.g = 1.0f - i;
-                cg.addColour (i, DeepColor (rgb).getColour());
+                cg.addColour (i, DeepColour (rgb).getColour());
             }
         }
 
@@ -357,37 +357,37 @@ public:
         {
             auto hsb = colour.getHSB();
             hsb.h = juce::jlimit (0.0f, 1.0f, val);
-            owner.set (DeepColor::fromHSB (hsb.h, hsb.s, hsb.b, 1.0f));
+            owner.set (DeepColour::fromHSB (hsb.h, hsb.s, hsb.b, 1.0f));
         }
         else if (param == Params::sat)
         {
             auto hsb = colour.getHSB();
             hsb.s = juce::jlimit (0.0f, 1.0f, val);
-            owner.set (DeepColor::fromHSB (hsb.h, hsb.s, hsb.b, 1.0f));
+            owner.set (DeepColour::fromHSB (hsb.h, hsb.s, hsb.b, 1.0f));
         }
         else if (param == Params::bri)
         {
             auto hsb = colour.getHSB();
             hsb.b = juce::jlimit (0.0f, 1.0f, val);
-            owner.set (DeepColor::fromHSB (hsb.h, hsb.s, hsb.b, 1.0f));
+            owner.set (DeepColour::fromHSB (hsb.h, hsb.s, hsb.b, 1.0f));
         }
         else if (param == Params::red)
         {
             auto rgb = colour.getRGB();
             rgb.r = juce::jlimit (0.0f, 1.0f, val);
-            owner.set (DeepColor::fromRGBA (rgb.r, rgb.g, rgb.b, 1.0f));
+            owner.set (DeepColour::fromRGBA (rgb.r, rgb.g, rgb.b, 1.0f));
         }
         else if (param == Params::blue)
         {
             auto rgb = colour.getRGB();
             rgb.b = juce::jlimit (0.0f, 1.0f, val);
-            owner.set (DeepColor::fromRGBA (rgb.r, rgb.g, rgb.b, 1.0f));
+            owner.set (DeepColour::fromRGBA (rgb.r, rgb.g, rgb.b, 1.0f));
         }
         else if (param == Params::green)
         {
             auto rgb = colour.getRGB();
             rgb.g = juce::jlimit (0.0f, 1.0f, val);
-            owner.set (DeepColor::fromRGBA (rgb.r, rgb.g, rgb.b, 1.0f));
+            owner.set (DeepColour::fromRGBA (rgb.r, rgb.g, rgb.b, 1.0f));
         }
         else
         {
@@ -402,8 +402,8 @@ public:
     }
 
 private:
-    ColorPicker& owner;
-    DeepColor& colour;
+    ColourSelector& owner;
+    DeepColour& colour;
     const int edge;
 
     struct Parameter1DMarker  : public Component
@@ -442,10 +442,10 @@ private:
 };
 
 //==============================================================================
-class ColorPicker::SwatchComponent   : public Component
+class ColourSelector::SwatchComponent   : public Component
 {
 public:
-    SwatchComponent (ColorPicker& cs, int itemIndex)
+    SwatchComponent (ColourSelector& cs, int itemIndex)
         : owner (cs), index (itemIndex)
     {
     }
@@ -471,7 +471,7 @@ public:
     }
 
 private:
-    ColorPicker& owner;
+    ColourSelector& owner;
     const int index;
 
     static void menuStaticCallback (int result, SwatchComponent* comp)
@@ -501,10 +501,10 @@ private:
 };
 
 //==============================================================================
-class ColorPicker::ColourPreviewComp  : public Component
+class ColourSelector::ColourPreviewComp  : public Component
 {
 public:
-    ColourPreviewComp (ColorPicker& cs, bool isEditable)
+    ColourPreviewComp (ColourSelector& cs, bool isEditable)
         : owner (cs)
     {
         colourLabel.setFont (labelFont);
@@ -569,7 +569,7 @@ private:
             owner.setCurrentColour (newColour);
     }
 
-    ColorPicker& owner;
+    ColourSelector& owner;
 
     juce::Colour currentColour;
     juce::Font labelFont { 14.0f, juce::Font::bold };
@@ -580,7 +580,7 @@ private:
 };
 
 //==============================================================================
-ColorPicker::ColorPicker (int sectionsToShow, int edge, int gapAroundColourSpaceComponent)
+ColourSelector::ColourSelector (int sectionsToShow, int edge, int gapAroundColourSpaceComponent)
     : colour (juce::Colours::white),
       flags (sectionsToShow),
       edgeGap (edge)
@@ -637,28 +637,28 @@ ColorPicker::ColorPicker (int sectionsToShow, int edge, int gapAroundColourSpace
     updateParameters();
 }
 
-ColorPicker::~ColorPicker()
+ColourSelector::~ColourSelector()
 {
     dispatchPendingMessages();
     swatchComponents.clear();
 }
 
 //==============================================================================
-juce::Colour ColorPicker::getCurrentColour() const
+juce::Colour ColourSelector::getCurrentColour() const
 {
     return ((flags & showAlphaChannel) != 0) ? colour.getColour() : colour.getColour().withAlpha ((juce::uint8) 0xff);
 }
 
-void ColorPicker::setCurrentColour (juce::Colour c, juce::NotificationType notification)
+void ColourSelector::setCurrentColour (juce::Colour c, juce::NotificationType notification)
 {
-    if (DeepColor (c) != colour)
+    if (DeepColour (c) != colour)
     {
         colour = ((flags & showAlphaChannel) != 0) ? c : c.withAlpha ((juce::uint8) 0xff);
         update (notification);
     }
 }
 
-void ColorPicker::setCurrentColour (DeepColor c, juce::NotificationType notification)
+void ColourSelector::setCurrentColour (DeepColour c, juce::NotificationType notification)
 {
     if (c != colour)
     {
@@ -667,35 +667,35 @@ void ColorPicker::setCurrentColour (DeepColor c, juce::NotificationType notifica
     }
 }
 
-void ColorPicker::set (const DeepColor& newColour)
+void ColourSelector::set (const DeepColour& newColour)
 {
     colour = newColour.withAlpha (colour.getAlpha());
     update (juce::sendNotification);
 }
 
-void ColorPicker::setHue (float newH)
+void ColourSelector::setHue (float newH)
 {
     auto hsb = colour.getHSB();
 
     hsb.h = juce::jlimit (0.0f, 1.0f, newH);
 
-    colour = DeepColor::fromHSB (hsb.h, hsb.s, hsb.b, colour.getAlpha());
+    colour = DeepColour::fromHSB (hsb.h, hsb.s, hsb.b, colour.getAlpha());
     update (juce::sendNotification);
 }
 
-void ColorPicker::setSV (float newS, float newB)
+void ColourSelector::setSV (float newS, float newB)
 {
     auto hsb = colour.getHSB();
 
     hsb.s = juce::jlimit (0.0f, 1.0f, newS);
     hsb.b = juce::jlimit (0.0f, 1.0f, newB);
 
-    colour = DeepColor::fromHSB (hsb.h, hsb.s, hsb.b, colour.getAlpha());
+    colour = DeepColour::fromHSB (hsb.h, hsb.s, hsb.b, colour.getAlpha());
     update (juce::sendNotification);
 }
 
 //==============================================================================
-void ColorPicker::update (juce::NotificationType notification)
+void ColourSelector::update (juce::NotificationType notification)
 {
     if (sliders[0] != nullptr)
     {
@@ -726,7 +726,7 @@ void ColorPicker::update (juce::NotificationType notification)
 }
 
 //==============================================================================
-void ColorPicker::paint (juce::Graphics& g)
+void ColourSelector::paint (juce::Graphics& g)
 {
     g.fillAll (findColour (backgroundColourId));
 
@@ -746,7 +746,7 @@ void ColorPicker::paint (juce::Graphics& g)
     }
 }
 
-void ColorPicker::resized()
+void ColourSelector::resized()
 {
     const int swatchesPerRow = 8;
     const int swatchHeight = 22;
@@ -840,32 +840,32 @@ void ColorPicker::resized()
     }
 }
 
-void ColorPicker::changeColour ( juce::Slider* slider )
+void ColourSelector::changeColour ( juce::Slider* slider )
 {
     if (sliders[0] == nullptr)
         return;
 
     if (sliders[0].get() == slider || sliders[1].get() == slider || sliders[2].get() == slider)
     {
-        auto col = DeepColor::fromHSB (float (sliders[0]->getValue() / 360.0),
-                                       float (sliders[1]->getValue() / 100.0),
-                                       float (sliders[2]->getValue() / 100.0),
-                                       float (sliders[6]->getValue() / 255.0));
+        auto col = DeepColour::fromHSB (float (sliders[0]->getValue() / 360.0),
+                                        float (sliders[1]->getValue() / 100.0),
+                                        float (sliders[2]->getValue() / 100.0),
+                                        float (sliders[6]->getValue() / 255.0));
 
         setCurrentColour (col);
     }
     else
     {
-        auto col = DeepColor::fromRGBA (float (sliders[3]->getValue() / 255.0),
-                                        float (sliders[4]->getValue() / 255.0),
-                                        float (sliders[5]->getValue() / 255.0),
-                                        float (sliders[6]->getValue() / 255.0));
+        auto col = DeepColour::fromRGBA (float (sliders[3]->getValue() / 255.0),
+                                         float (sliders[4]->getValue() / 255.0),
+                                         float (sliders[5]->getValue() / 255.0),
+                                         float (sliders[6]->getValue() / 255.0));
 
         setCurrentColour (col);
     }
 }
 
-void ColorPicker::updateParameters()
+void ColourSelector::updateParameters()
 {
     if (toggles[0]->getToggleState())
     {
@@ -900,18 +900,18 @@ void ColorPicker::updateParameters()
 }
 
 //==============================================================================
-int ColorPicker::getNumSwatches() const
+int ColourSelector::getNumSwatches() const
 {
     return 0;
 }
 
-juce::Colour ColorPicker::getSwatchColour (int) const
+juce::Colour ColourSelector::getSwatchColour (int) const
 {
     jassertfalse; // if you've overridden getNumSwatches(), you also need to implement this method
     return juce::Colours::black;
 }
 
-void ColorPicker::setSwatchColour (int, const juce::Colour&)
+void ColourSelector::setSwatchColour (int, const juce::Colour&)
 {
     jassertfalse; // if you've overridden getNumSwatches(), you also need to implement this method
 }

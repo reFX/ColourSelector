@@ -12,13 +12,13 @@ namespace reFX
 
     @tags{GUI}
 */
-class ColorPicker : public juce::Component,
-                    public juce::ChangeBroadcaster
+class ColourSelector : public juce::Component,
+                       public juce::ChangeBroadcaster
 {
 public:
     //==============================================================================
     /** Options for the type of selector to show. These are passed into the constructor. */
-    enum ColorPickerOptions
+    enum ColourSelectorOptions
     {
         showAlphaChannel    = 1 << 0,   /**< if set, the colour's alpha channel can be changed as well as its RGB. */
 
@@ -29,9 +29,9 @@ public:
     };
 
     //==============================================================================
-    /** Creates a ColorPicker object.
+    /** Creates a ColourSelector object.
 
-        The flags are a combination of values from the ColorPickerOptions enum, specifying
+        The flags are a combination of values from the ColourSelectorOptions enum, specifying
         which of the selector's features should be visible.
 
         The edgeGap value specifies the amount of space to leave around the edge.
@@ -39,17 +39,17 @@ public:
         gapAroundColourSpaceComponent indicates how much of a gap to put around the
         colourspace and hue selector components.
     */
-    ColorPicker (int flags = (showAlphaChannel | showColourAtTop | showSliders | showColourspace),
-                 int edgeGap = 4,
-                 int gapAroundColourSpaceComponent = 7);
+    ColourSelector (int flags = (showAlphaChannel | showColourAtTop | showSliders | showColourspace),
+                    int edgeGap = 4,
+                    int gapAroundColourSpaceComponent = 7);
 
     /** Destructor. */
-    ~ColorPicker() override;
+    ~ColourSelector() override;
 
     //==============================================================================
     /** Returns the colour that the user has currently selected.
 
-        The ColorPicker class is also a ChangeBroadcaster, so listeners can
+        The ColourSelector class is also a ChangeBroadcaster, so listeners can
         register to be told when the colour changes.
 
         @see setCurrentColour
@@ -70,7 +70,7 @@ public:
         @param notificationType    whether to send a notification of the change to listeners.
                                    A notification will only be sent if the colour has changed.
     */
-    void setCurrentColour (DeepColor newColour, juce::NotificationType notificationType = juce::sendNotification);
+    void setCurrentColour (DeepColour newColour, juce::NotificationType notificationType = juce::sendNotification);
 
     //==============================================================================
     /** Tells the selector how many preset colour swatches you want to have on the component.
@@ -136,7 +136,7 @@ private:
         blue,
     };
 
-    DeepColor colour;
+    DeepColour colour;
     std::unique_ptr<juce::ToggleButton> toggles[6];
     std::unique_ptr<juce::Slider> sliders[7];
     std::unique_ptr<Parameter2D> parameter2D;
@@ -154,9 +154,9 @@ private:
     void paint (juce::Graphics&) override;
     void resized() override;
 
-    void set (const DeepColor&);
+    void set (const DeepColour&);
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ColorPicker)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ColourSelector)
 };
 
-} // namespace juce
+} // namespace reFX

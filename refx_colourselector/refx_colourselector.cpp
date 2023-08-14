@@ -9,7 +9,7 @@
 
 #include <locale>
 
-#include "refx_colorpicker.h"
+#include "refx_colourselector.h"
 
-#include "Source/refx_DeepColor.cpp"
-#include "Source/refx_ColorPicker.cpp"
+#include "Source/refx_DeepColour.cpp"
+#include "Source/refx_ColourSelector.cpp"

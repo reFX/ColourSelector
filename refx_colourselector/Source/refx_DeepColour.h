@@ -29,20 +29,20 @@ struct HSB
 
     @tags{Graphics}
 */
-class DeepColor final
+class DeepColour final
 {
 public:
     //==============================================================================
     /** Creates a transparent black colour. */
-    DeepColor() = default;
+    DeepColour() = default;
 
-    /** Creates a copy of another DeepColor object. */
-    DeepColor (const DeepColor&) = default;
+    /** Creates a copy of another DeepColour object. */
+    DeepColour (const DeepColour&) = default;
 
     /** Creates a copy of a juce::Colour object. */
-    DeepColor (const juce::Colour&);
+    DeepColour (const juce::Colour&);
 
-    /** Creates a DeepColor from a 32-bit ARGB value.
+    /** Creates a DeepColour from a 32-bit ARGB value.
 
         The format of this number is:
             ((alpha << 24) | (red << 16) | (green << 8) | blue).
@@ -52,38 +52,38 @@ public:
 
         @see getPixelARGB
     */
-    explicit DeepColor (juce::uint32 argb) noexcept;
+    explicit DeepColour (juce::uint32 argb) noexcept;
 
-    explicit DeepColor (HSB hsb, float alpha = 1.0f) noexcept;
+    explicit DeepColour (HSB hsb, float alpha = 1.0f) noexcept;
 
-    explicit DeepColor (RGB rgb, float alpha = 1.0f) noexcept;
+    explicit DeepColour (RGB rgb, float alpha = 1.0f) noexcept;
 
     /** Creates an opaque colour using float red, green and blue values */
-    static DeepColor fromRGB (float red, float green, float blue) noexcept;
+    static DeepColour fromRGB (float red, float green, float blue) noexcept;
 
     /** Creates a colour using 8-bit red, green, blue and alpha values. */
-    static DeepColor fromRGBA (float red, float green, float blue, float alpha) noexcept;
+    static DeepColour fromRGBA (float red, float green, float blue, float alpha) noexcept;
 
     /** Creates a colour using floating point hue, saturation, brightness and alpha values.
 
         All values must be between 0.0 and 1.0.
         Numbers outside the valid range will be clipped.
     */
-    static DeepColor fromHSB (float hue,
-                              float saturation,
-                              float brightness,
-                              float alpha) noexcept;
+    static DeepColour fromHSB (float hue,
+                               float saturation,
+                               float brightness,
+                               float alpha) noexcept;
 
     /** Destructor. */
-    ~DeepColor() = default;
+    ~DeepColour() = default;
 
     /** Copies another Colour object. */
-    DeepColor& operator= (const DeepColor&) = default;
+    DeepColour& operator= (const DeepColour&) = default;
 
     /** Compares two colours. */
-    bool operator== (const DeepColor& other) const noexcept;
+    bool operator== (const DeepColour& other) const noexcept;
     /** Compares two colours. */
-    bool operator!= (const DeepColor& other) const noexcept;
+    bool operator!= (const DeepColour& other) const noexcept;
 
     //==============================================================================
     /** Returns the red component of this colour.
@@ -112,7 +112,7 @@ public:
     */
     float getAlpha() const noexcept                     { return a; }
 
-    DeepColor withAlpha (float newAlpha) const noexcept;
+    DeepColour withAlpha (float newAlpha) const noexcept;
 
     //==============================================================================
     /** Returns the colour's hue component.
@@ -151,4 +151,4 @@ private:
     std::variant<HSB, RGB> col;
 };
 
-} // namespace juce
+} // namespace reFX

@@ -87,7 +87,7 @@ RGB hsbToRgb (const HSB& hsb)
 }
 
 //==============================================================================
-bool DeepColor::operator== (const DeepColor& other) const noexcept
+bool DeepColour::operator== (const DeepColour& other) const noexcept
 {
     return juce::approximatelyEqual (a, other.a) &&
            juce::approximatelyEqual (getRed(), other.getRed()) &&
@@ -95,62 +95,62 @@ bool DeepColor::operator== (const DeepColor& other) const noexcept
            juce::approximatelyEqual (getGreen(), other.getGreen());
 }
 
-bool DeepColor::operator!= (const DeepColor& other) const noexcept
+bool DeepColour::operator!= (const DeepColour& other) const noexcept
 {
     return ! (*this == other);
 }
 
 //==============================================================================
-DeepColor::DeepColor (juce::uint32 c) noexcept
+DeepColour::DeepColour (juce::uint32 c) noexcept
 {
     a = (((c >> 24) & 0xff) / 255.0f);
     col = RGB ((((c >> 16) & 0xff) / 255.0f), (((c >> 8)  & 0xff) / 255.0f), (((c >> 0)  & 0xff) / 255.0f));
 }
 
-DeepColor::DeepColor (HSB hsb, float alpha) noexcept
+DeepColour::DeepColour (HSB hsb, float alpha) noexcept
 {
     a = alpha;
     col = hsb;
 }
 
-DeepColor::DeepColor (RGB rgb, float alpha) noexcept
+DeepColour::DeepColour (RGB rgb, float alpha) noexcept
 {
     a = alpha;
     col = rgb;
 }
 
-DeepColor::DeepColor (const juce::Colour& c)
+DeepColour::DeepColour (const juce::Colour& c)
 {
     col = RGB ({c.getFloatRed(), c.getFloatGreen(), c.getFloatBlue()});
     a = c.getFloatAlpha();
 }
 
-DeepColor DeepColor::fromRGB (float red, float green, float blue) noexcept
+DeepColour DeepColour::fromRGB (float red, float green, float blue) noexcept
 {
-    DeepColor c;
+    DeepColour c;
     c.a = 1.0f;
     c.col = RGB (red, green, blue);
     return c;
 }
 
-DeepColor DeepColor::fromRGBA (float red, float green, float blue, float alpha) noexcept
+DeepColour DeepColour::fromRGBA (float red, float green, float blue, float alpha) noexcept
 {
-    DeepColor c;
+    DeepColour c;
     c.a = alpha;
     c.col = RGB (red, green, blue);
     return c;
 }
 
-DeepColor DeepColor::fromHSB (float hue, float saturation, float brightness, float alpha) noexcept
+DeepColour DeepColour::fromHSB (float hue, float saturation, float brightness, float alpha) noexcept
 {
-    DeepColor c;
+    DeepColour c;
     c.a = alpha;
     c.col = HSB (hue, saturation, brightness);
     return c;
 }
 
 //==============================================================================
-HSB DeepColor::getHSB() const noexcept
+HSB DeepColour::getHSB() const noexcept
 {
     if (auto hsb = std::get_if<HSB>(&col))
         return *hsb;
@@ -161,7 +161,7 @@ HSB DeepColor::getHSB() const noexcept
     return {};
 }
 
-RGB DeepColor::getRGB() const noexcept
+RGB DeepColour::getRGB() const noexcept
 {
     if (auto hsb = std::get_if<HSB>(&col))
         return hsbToRgb (*hsb);
@@ -172,20 +172,20 @@ RGB DeepColor::getRGB() const noexcept
     return {};
 }
 
-float DeepColor::getRed() const noexcept           { return getRGB().r; }
-float DeepColor::getGreen() const noexcept         { return getRGB().g; }
-float DeepColor::getBlue() const noexcept          { return getRGB().b; }
+float DeepColour::getRed() const noexcept           { return getRGB().r; }
+float DeepColour::getGreen() const noexcept         { return getRGB().g; }
+float DeepColour::getBlue() const noexcept          { return getRGB().b; }
 
-float DeepColor::getHue() const noexcept           { return getHSB().h; }
-float DeepColor::getSaturation() const noexcept    { return getHSB().s; }
-float DeepColor::getBrightness() const noexcept    { return getHSB().b; }
+float DeepColour::getHue() const noexcept           { return getHSB().h; }
+float DeepColour::getSaturation() const noexcept    { return getHSB().s; }
+float DeepColour::getBrightness() const noexcept    { return getHSB().b; }
 
-juce::Colour DeepColor::getColour () const
+juce::Colour DeepColour::getColour () const
 {
     return juce::Colour::fromFloatRGBA (getRed(), getGreen(), getBlue(), a);
 }
 
-DeepColor DeepColor::withAlpha (float newAlpha) const noexcept
+DeepColour DeepColour::withAlpha (float newAlpha) const noexcept
 {
     auto c = *this;
     c.a = newAlpha;
