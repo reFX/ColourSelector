@@ -1,7 +1,7 @@
 option (BUILD_EXTRAS "Build extra tools" OFF)
 
 foreach(module_name IN ITEMS 
-			refx_colorpicker
+			refx_colourselector
 		)
 	juce_add_module (
 		"${module_name}"
