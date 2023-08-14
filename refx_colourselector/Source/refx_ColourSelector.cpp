@@ -585,6 +585,8 @@ ColourSelector::ColourSelector (int sectionsToShow, int edge, int gapAroundColou
       flags (sectionsToShow),
       edgeGap (edge)
 {
+    setLookAndFeel (&lf);
+
     // not much point having a selector with no components in it!
     jassert ((flags & (showColourAtTop | showSliders | showColourspace)) != 0);
 
@@ -639,6 +641,7 @@ ColourSelector::ColourSelector (int sectionsToShow, int edge, int gapAroundColou
 
 ColourSelector::~ColourSelector()
 {
+    setLookAndFeel (nullptr);
     dispatchPendingMessages();
     swatchComponents.clear();
 }

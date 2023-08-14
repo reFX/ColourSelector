@@ -1,3 +1,5 @@
+#pragma once
+
 namespace reFX
 {
 
@@ -136,7 +138,9 @@ private:
         blue,
     };
 
+    ColourSelectorLF lf;
     DeepColour colour;
+
     std::unique_ptr<juce::ToggleButton> toggles[6];
     std::unique_ptr<juce::Slider> sliders[7];
     std::unique_ptr<Parameter2D> parameter2D;

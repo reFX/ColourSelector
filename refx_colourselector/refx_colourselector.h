@@ -30,5 +30,6 @@
 #include <juce_core/juce_core.h>
 #include <juce_gui_basics/juce_gui_basics.h>
 
+#include "Source/refx_ColourSelectorLF.h"
 #include "Source/refx_DeepColour.h"
 #include "Source/refx_ColourSelector.h"
