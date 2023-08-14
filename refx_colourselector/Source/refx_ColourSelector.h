@@ -26,8 +26,12 @@ public:
 
         showColourAtTop     = 1 << 1,   /**< if set, a swatch of the colour is shown at the top of the component. */
         editableColour      = 1 << 2,   /**< if set, the colour shows at the top of the component is editable. */
-        showSliders         = 1 << 3,   /**< if set, RGB sliders are shown at the bottom of the component. */
-        showColourspace     = 1 << 4    /**< if set, a big HSV selector is shown. */
+        showRGBSliders      = 1 << 3,   /**< if set, RGB sliders are shown at the bottom of the component. */
+        showHSBSliders      = 1 << 4,   /**< if set, HSV sliders are shown at the bottom of the component. */
+        showToggle          = 1 << 5,   /**< if set, radiobuttons are shown to select colourspace edit mode */
+        showReset           = 1 << 6,   /**< if set, show a button to reset colour. */
+        showOriginalColour  = 1 << 7,   /**< if set, show a swatch with original colour and current. */
+        showColourspace     = 1 << 8    /**< if set, a big HSV selector is shown. */
     };
 
     //==============================================================================
@@ -41,7 +45,7 @@ public:
         gapAroundColourSpaceComponent indicates how much of a gap to put around the
         colourspace and hue selector components.
     */
-    ColourSelector (int flags = (showAlphaChannel | showColourAtTop | showSliders | showColourspace),
+    ColourSelector (int flags = (showAlphaChannel | showColourAtTop | showRGBSliders | showColourspace),
                     int edgeGap = 4,
                     int gapAroundColourSpaceComponent = 7);
 
@@ -141,14 +145,22 @@ private:
     ColourSelectorLF lf;
     DeepColour colour;
 
-    std::unique_ptr<juce::ToggleButton> toggles[6];
-    std::unique_ptr<juce::Slider> sliders[7];
+    juce::OwnedArray<juce::ToggleButton> toggles;
+    juce::OwnedArray<juce::Slider> sliders;
     std::unique_ptr<Parameter2D> parameter2D;
     std::unique_ptr<Parameter1D> parameter1D;
     std::unique_ptr<ColourPreviewComp> previewComponent;
     juce::OwnedArray<SwatchComponent> swatchComponents;
     const int flags;
     int edgeGap;
+
+    juce::Slider* redSlider = nullptr;
+    juce::Slider* greenSlider = nullptr;
+    juce::Slider* blueSlider = nullptr;
+    juce::Slider* hueSlider = nullptr;
+    juce::Slider* saturationSlider = nullptr;
+    juce::Slider* brightnessSlider = nullptr;
+    juce::Slider* alphaSlider = nullptr;
 
     void updateParameters();
     void update (juce::NotificationType);

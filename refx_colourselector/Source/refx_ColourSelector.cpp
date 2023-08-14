@@ -590,7 +590,7 @@ ColourSelector::ColourSelector (int sectionsToShow, int edge, int gapAroundColou
     setLookAndFeel (&lf);
 
     // not much point having a selector with no components in it!
-    jassert ((flags & (showColourAtTop | showSliders | showColourspace)) != 0);
+    jassert ((flags & (showColourAtTop | showRGBSliders | showHSBSliders | showColourspace)) != 0);
 
     if ((flags & showColourAtTop) != 0)
     {
@@ -598,35 +598,53 @@ ColourSelector::ColourSelector (int sectionsToShow, int edge, int gapAroundColou
         addAndMakeVisible (previewComponent.get());
     }
 
-    for (auto& t : toggles)
+    if ((flags & showHSBSliders) != 0)
     {
-        t.reset (new juce::ToggleButton());
-        t->setRadioGroupId (1);
-        t->onClick = [this] { updateParameters(); };
-        addAndMakeVisible (*t);
+        sliders.add (hueSlider = new ColourComponentSlider (TRANS ("H"), 360));
+        sliders.add (saturationSlider = new ColourComponentSlider (TRANS ("S"), 100));
+        sliders.add (brightnessSlider = new ColourComponentSlider (TRANS ("B"), 100));
+
+        if ((flags & showToggle) != 0)
+        {
+            toggles.add (new juce::ToggleButton (juce::String (int (Params::hue))));
+            toggles.add (new juce::ToggleButton (juce::String (int (Params::sat))));
+            toggles.add (new juce::ToggleButton (juce::String (int (Params::bri))));
+        }
+    }
+    if ((flags & showRGBSliders) != 0)
+    {
+
+        sliders.add (redSlider = new ColourComponentSlider (TRANS ("R"), 255));
+        sliders.add (greenSlider = new ColourComponentSlider (TRANS ("G"), 255));
+        sliders.add (blueSlider = new ColourComponentSlider (TRANS ("B"), 255));
+
+        if ((flags & showToggle) != 0)
+        {
+            toggles.add (new juce::ToggleButton (juce::String (int (Params::red))));
+            toggles.add (new juce::ToggleButton (juce::String (int (Params::green))));
+            toggles.add (new juce::ToggleButton (juce::String (int (Params::blue))));
+        }
     }
 
-    toggles[0]->setToggleState (true, juce::dontSendNotification);
+    if ((flags & showAlphaChannel) != 0)
+        sliders.add (alphaSlider = new ColourComponentSlider (TRANS ("A"), 255));
 
-    if ((flags & showSliders) != 0)
+    for (auto& slider : sliders)
     {
-        sliders[0].reset (new ColourComponentSlider (TRANS ("H"), 360));
-        sliders[1].reset (new ColourComponentSlider (TRANS ("S"), 100));
-        sliders[2].reset (new ColourComponentSlider (TRANS ("B"), 100));
-
-        sliders[3].reset (new ColourComponentSlider (TRANS ("R"), 255));
-        sliders[4].reset (new ColourComponentSlider (TRANS ("G"), 255));
-        sliders[5].reset (new ColourComponentSlider (TRANS ("B"), 255));
-        sliders[6].reset (new ColourComponentSlider (TRANS ("A"), 255));
-
-        for ( auto& slider : sliders )
-            addAndMakeVisible (slider.get());
-
-        sliders[6]->setVisible ((flags & showAlphaChannel) != 0);
-
-        for (auto& slider : sliders)
-            slider->onValueChange = [this, p = slider.get()] { changeColour (p); };
+        addAndMakeVisible (slider);
+        slider->onValueChange = [this, slider] { changeColour (slider); };
     }
+
+    for (auto& toggle : toggles)
+    {
+        addAndMakeVisible (toggle);
+        toggle->setButtonText ({});
+        toggle->setRadioGroupId (1);
+        toggle->onClick = [this] { updateParameters(); };
+    }
+
+    if (toggles.size() > 0)
+        toggles[0]->setToggleState (true, juce::dontSendNotification);
 
     if ((flags & showColourspace) != 0)
     {
@@ -681,17 +699,22 @@ void ColourSelector::set (const DeepColour& newColour)
 //==============================================================================
 void ColourSelector::update (juce::NotificationType notification)
 {
-    if (sliders[0] != nullptr)
+    if (hueSlider)
     {
-        sliders[0]->setValue (colour.getHue() * 360,        juce::dontSendNotification);
-        sliders[1]->setValue (colour.getSaturation() * 100, juce::dontSendNotification);
-        sliders[2]->setValue (colour.getBrightness() * 100, juce::dontSendNotification);
-
-        sliders[3]->setValue (colour.getRed() * 255,   juce::dontSendNotification);
-        sliders[4]->setValue (colour.getGreen() * 255, juce::dontSendNotification);
-        sliders[5]->setValue (colour.getBlue() * 255,  juce::dontSendNotification);
-        sliders[6]->setValue (colour.getAlpha() * 255, juce::dontSendNotification);
+        hueSlider->setValue (colour.getHue() * 360,                 juce::dontSendNotification);
+        saturationSlider->setValue (colour.getSaturation() * 100,   juce::dontSendNotification);
+        brightnessSlider->setValue (colour.getBrightness() * 100,   juce::dontSendNotification);
     }
+
+    if (redSlider)
+    {
+        redSlider->setValue (colour.getRed() * 255,     juce::dontSendNotification);
+        greenSlider->setValue (colour.getGreen() * 255, juce::dontSendNotification);
+        blueSlider->setValue (colour.getBlue() * 255,   juce::dontSendNotification);
+    }
+
+    if (alphaSlider)
+        alphaSlider->setValue (colour.getAlpha() * 255, juce::dontSendNotification);
 
     if (parameter2D != nullptr)
     {
@@ -714,7 +737,7 @@ void ColourSelector::paint (juce::Graphics& g)
 {
     g.fillAll (findColour (backgroundColourId));
 
-    if ((flags & showSliders) != 0)
+    if ((flags & showRGBSliders) != 0)
     {
         g.setColour (findColour (labelTextColourId));
         g.setFont (11.0f);
@@ -735,11 +758,11 @@ void ColourSelector::resized()
     const int swatchesPerRow = 8;
     const int swatchHeight = 22;
 
-    const int numSliders = ((flags & showAlphaChannel) != 0) ? 7 : 6;
+    const float numSliders = sliders.size() + (hueSlider && redSlider ? 0.5f : 0.0f) + (alphaSlider ? 0.5f : 0.0f);
     const int numSwatches = getNumSwatches();
 
     const int swatchSpace = numSwatches > 0 ? edgeGap + swatchHeight * ((numSwatches + 7) / swatchesPerRow) : 0;
-    const int sliderSpace = ((flags & showSliders) != 0)  ? juce::jmin (22 * numSliders + edgeGap, proportionOfHeight (0.3f)) : 0;
+    const int sliderSpace = ((flags & showRGBSliders) != 0)  ? juce::jmin (int (22 * numSliders + edgeGap), proportionOfHeight (0.3f)) : 0;
     const int topSpace = ((flags & showColourAtTop) != 0) ? juce::jmin (30 + edgeGap * 2, proportionOfHeight (0.2f)) : edgeGap;
 
     if (previewComponent != nullptr)
@@ -762,11 +785,11 @@ void ColourSelector::resized()
         y = getHeight() - sliderSpace - swatchSpace - edgeGap;
     }
 
-    if ((flags & showSliders) != 0)
+    if (sliders.size() > 0)
     {
-        auto sliderHeight = juce::jmax (4, sliderSpace / numSliders);
+        auto sliderHeight = juce::jmax (4, int (sliderSpace / numSliders));
 
-        for (int i = 0; i < numSliders; ++i)
+        for (auto i = 0; auto slider : sliders)
         {
             auto rc = juce::Rectangle<int> (proportionOfWidth (0.2f), y, proportionOfWidth (0.72f), sliderHeight - 2);
 
@@ -774,9 +797,17 @@ void ColourSelector::resized()
             if (i < std::ssize (toggles))
                 toggles[i]->setBounds (trc.translated (-sliderHeight, 0));
 
-            sliders[i]->setBounds (rc);
+            slider->setBounds (rc);
 
             y += sliderHeight;
+
+            if (slider == brightnessSlider && redSlider != nullptr)
+                y += sliderHeight / 2;
+
+            if (slider == blueSlider && alphaSlider != nullptr)
+                y += sliderHeight / 2;
+
+            ++i;
         }
     }
 
@@ -824,26 +855,26 @@ void ColourSelector::resized()
     }
 }
 
-void ColourSelector::changeColour ( juce::Slider* slider )
+void ColourSelector::changeColour (juce::Slider* slider)
 {
     if (sliders[0] == nullptr)
         return;
 
-    if (sliders[0].get() == slider || sliders[1].get() == slider || sliders[2].get() == slider)
+    if (hueSlider == slider || saturationSlider == slider || brightnessSlider == slider)
     {
-        auto col = DeepColour::fromHSB (float (sliders[0]->getValue() / 360.0),
-                                        float (sliders[1]->getValue() / 100.0),
-                                        float (sliders[2]->getValue() / 100.0),
-                                        float (sliders[6]->getValue() / 255.0));
+        auto col = DeepColour::fromHSB (float (hueSlider->getValue() / 360.0),
+                                        float (saturationSlider->getValue() / 100.0),
+                                        float (brightnessSlider->getValue() / 100.0),
+                                        float (alphaSlider ? alphaSlider->getValue() / 255.0 : 1.0));
 
         setCurrentColour (col);
     }
     else
     {
-        auto col = DeepColour::fromRGBA (float (sliders[3]->getValue() / 255.0),
-                                         float (sliders[4]->getValue() / 255.0),
-                                         float (sliders[5]->getValue() / 255.0),
-                                         float (sliders[6]->getValue() / 255.0));
+        auto col = DeepColour::fromRGBA (float (redSlider->getValue() / 255.0),
+                                         float (greenSlider->getValue() / 255.0),
+                                         float (blueSlider->getValue() / 255.0),
+                                         float (alphaSlider ? alphaSlider->getValue() / 255.0 : 1.0));
 
         setCurrentColour (col);
     }
@@ -851,32 +882,43 @@ void ColourSelector::changeColour ( juce::Slider* slider )
 
 void ColourSelector::updateParameters()
 {
-    if (toggles[0]->getToggleState())
+    auto getState = [&]
+    {
+        for (auto t : toggles)
+            if (t->getToggleState())
+                return (Params) t->getName().getIntValue();
+
+        return Params::hue;
+    };
+
+    auto state = getState ();
+
+    if (state == Params::hue)
     {
         parameter1D->setParameter (Params::hue);
         parameter2D->setParameters (Params::sat, Params::bri);
     }
-    else if (toggles[1]->getToggleState())
+    else if (state == Params::sat)
     {
         parameter1D->setParameter (Params::sat);
         parameter2D->setParameters (Params::hue, Params::bri);
     }
-    else if (toggles[2]->getToggleState())
+    else if (state == Params::bri)
     {
         parameter1D->setParameter (Params::bri);
         parameter2D->setParameters (Params::hue, Params::sat);
     }
-    else if (toggles[3]->getToggleState())
+    else if (state == Params::red)
     {
         parameter1D->setParameter (Params::red);
         parameter2D->setParameters (Params::blue, Params::green);
     }
-    else if (toggles[4]->getToggleState())
+    else if (state == Params::green)
     {
         parameter1D->setParameter (Params::green);
         parameter2D->setParameters (Params::blue, Params::red);
     }
-    else if (toggles[5]->getToggleState())
+    else if (state == Params::blue)
     {
         parameter1D->setParameter (Params::blue);
         parameter2D->setParameters (Params::red, Params::green);
