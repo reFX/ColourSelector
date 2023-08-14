@@ -277,8 +277,10 @@ public:
         {
             if (param == Params::hue)
             {
-                auto hsb = c.getHSB();
+                HSB hsb;
                 hsb.h = 1.0f - i;
+                hsb.s = 1.0f;
+                hsb.b = 1.0f;
                 cg.addColour (i, DeepColour (hsb).getColour());
             }
             else if (param == Params::sat)
