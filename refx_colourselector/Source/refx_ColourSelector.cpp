@@ -109,13 +109,13 @@ public:
                         hsb.h = juce::jlimit (0.0f, 1.0f, val);
                         c = DeepColour (hsb);
                     }
-                    else if (param == Params::sat)
+                    else if (param == Params::saturation)
                     {
                         auto hsb = c.getHSB();
                         hsb.s = juce::jlimit (0.0f, 1.0f, val);
                         c = DeepColour (hsb);
                     }
-                    else if (param == Params::bri)
+                    else if (param == Params::brightness)
                     {
                         auto hsb = c.getHSB();
                         hsb.b = juce::jlimit (0.0f, 1.0f, val);
@@ -172,13 +172,13 @@ public:
                 hsb.h = juce::jlimit (0.0f, 1.0f, val);
                 owner.set (DeepColour::fromHSB (hsb.h, hsb.s, hsb.b, owner.colour.getAlpha()));
             }
-            else if (param == Params::sat)
+            else if (param == Params::saturation)
             {
                 auto hsb = owner.colour.getHSB();
                 hsb.s = juce::jlimit (0.0f, 1.0f, val);
                 owner.set (DeepColour::fromHSB (hsb.h, hsb.s, hsb.b, owner.colour.getAlpha()));
             }
-            else if (param == Params::bri)
+            else if (param == Params::brightness)
             {
                 auto hsb = owner.colour.getHSB();
                 hsb.b = juce::jlimit (0.0f, 1.0f, val);
@@ -230,7 +230,7 @@ private:
     const int edge;
     juce::Image colours;
     Params xParam = Params::hue;
-    Params yParam = Params::sat;
+    Params yParam = Params::saturation;
 
     struct Parameter2DMarker  : public Component
     {
@@ -259,9 +259,9 @@ private:
         {
             if (param == Params::hue)
                 return owner.colour.getHSB().h;
-            else if (param == Params::sat)
+            else if (param == Params::saturation)
                 return owner.colour.getHSB().s;
-            else if (param == Params::bri)
+            else if (param == Params::brightness)
                 return owner.colour.getHSB().b;
             else if (param == Params::red)
                 return owner.colour.getRGB().r;
@@ -316,13 +316,13 @@ public:
                 hsb.b = 1.0f;
                 cg.addColour (i, DeepColour (hsb).getColour());
             }
-            else if (param == Params::sat)
+            else if (param == Params::saturation)
             {
                 auto hsb = c.getHSB();
                 hsb.s = 1.0f - i;
                 cg.addColour (i, DeepColour (hsb).getColour());
             }
-            else if (param == Params::bri)
+            else if (param == Params::brightness)
             {
                 auto hsb = c.getHSB();
                 hsb.b = 1.0f - i;
@@ -361,9 +361,9 @@ public:
         {
             if (param == Params::hue)
                 return owner.colour.getHSB().h;
-            else if (param == Params::sat)
+            else if (param == Params::saturation)
                 return owner.colour.getHSB().s;
-            else if (param == Params::bri)
+            else if (param == Params::brightness)
                 return owner.colour.getHSB().b;
             else if (param == Params::red)
                 return owner.colour.getRGB().r;
@@ -395,13 +395,13 @@ public:
             hsb.h = juce::jlimit (0.0f, 1.0f, val);
             owner.set (DeepColour::fromHSB (hsb.h, hsb.s, hsb.b, owner.colour.getAlpha()));
         }
-        else if (param == Params::sat)
+        else if (param == Params::saturation)
         {
             auto hsb = owner.colour.getHSB();
             hsb.s = juce::jlimit (0.0f, 1.0f, val);
             owner.set (DeepColour::fromHSB (hsb.h, hsb.s, hsb.b, owner.colour.getAlpha()));
         }
-        else if (param == Params::bri)
+        else if (param == Params::brightness)
         {
             auto hsb = owner.colour.getHSB();
             hsb.b = juce::jlimit (0.0f, 1.0f, val);
@@ -640,8 +640,8 @@ ColourSelector::ColourSelector (int sectionsToShow, int edge, int gapAroundColou
         if ((flags & showToggle) != 0)
         {
             toggles.add (new juce::ToggleButton (juce::String (int (Params::hue))));
-            toggles.add (new juce::ToggleButton (juce::String (int (Params::sat))));
-            toggles.add (new juce::ToggleButton (juce::String (int (Params::bri))));
+            toggles.add (new juce::ToggleButton (juce::String (int (Params::saturation))));
+            toggles.add (new juce::ToggleButton (juce::String (int (Params::brightness))));
         }
     }
     if ((flags & showRGBSliders) != 0)
@@ -1003,17 +1003,17 @@ void ColourSelector::updateParameters()
     if (state == Params::hue)
     {
         parameter1D->setParameter (Params::hue);
-        parameter2D->setParameters (Params::sat, Params::bri);
+        parameter2D->setParameters (Params::saturation, Params::brightness);
     }
-    else if (state == Params::sat)
+    else if (state == Params::saturation)
     {
-        parameter1D->setParameter (Params::sat);
-        parameter2D->setParameters (Params::hue, Params::bri);
+        parameter1D->setParameter (Params::saturation);
+        parameter2D->setParameters (Params::hue, Params::brightness);
     }
-    else if (state == Params::bri)
+    else if (state == Params::brightness)
     {
-        parameter1D->setParameter (Params::bri);
-        parameter2D->setParameters (Params::hue, Params::sat);
+        parameter1D->setParameter (Params::brightness);
+        parameter2D->setParameters (Params::hue, Params::saturation);
     }
     else if (state == Params::red)
     {

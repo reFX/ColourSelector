@@ -136,8 +136,8 @@ private:
     enum class Params
     {
         hue,
-        sat,
-        bri,
+        saturation,
+        brightness,
 
         red,
         green,
