@@ -673,7 +673,7 @@ ColourSelector::ColourSelector (int sectionsToShow, int edge, int gapAroundColou
         addAndMakeVisible (toggle);
         toggle->setButtonText ({});
         toggle->setRadioGroupId (1);
-        toggle->onClick = [this] { updateParameters(); };
+        toggle->onClick = [this] { updateParameters(); sendChangeMessage(); };
     }
 
     if (toggles.size() > 0)
@@ -989,16 +989,7 @@ void ColourSelector::changeColour (juce::Slider* slider)
 
 void ColourSelector::updateParameters()
 {
-    auto getState = [&]
-    {
-        for (auto t : toggles)
-            if (t->getToggleState())
-                return (Params) t->getName().getIntValue();
-
-        return Params::hue;
-    };
-
-    auto state = getState ();
+    auto state = getActiveParam();
 
     if (state == Params::hue)
     {
@@ -1030,6 +1021,23 @@ void ColourSelector::updateParameters()
         parameter1D->setParameter (Params::blue);
         parameter2D->setParameters (Params::red, Params::green);
     }
+}
+
+ColourSelector::Params ColourSelector::getActiveParam ()
+{
+    for (auto t : toggles)
+        if (t->getToggleState())
+            return (Params) t->getName().getIntValue();
+
+    return Params::hue;
+}
+
+void ColourSelector::setActiveParam ( Params p )
+{
+    for (auto t : toggles)
+        t->setToggleState ((Params) t->getName().getIntValue() == p, juce::dontSendNotification);
+
+    updateParameters();
 }
 
 //==============================================================================

@@ -79,6 +79,21 @@ public:
     */
     void setCurrentColour (DeepColour newColour, juce::NotificationType notificationType = juce::sendNotification);
 
+    enum class Params
+    {
+        hue,
+        saturation,
+        brightness,
+
+        red,
+        green,
+        blue,
+    };
+
+    Params getActiveParam ();
+
+    void setActiveParam ( Params );
+
     //==============================================================================
     /** Tells the selector how many preset colour swatches you want to have on the component.
 
@@ -132,17 +147,6 @@ private:
     class Parameter1D;
     class ColourPreviewComp;
     class OriginalColourComp;
-
-    enum class Params
-    {
-        hue,
-        saturation,
-        brightness,
-
-        red,
-        green,
-        blue,
-    };
 
     ColourSelectorLF lf;
     DeepColour colour;
