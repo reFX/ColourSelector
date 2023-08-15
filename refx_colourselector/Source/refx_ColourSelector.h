@@ -131,6 +131,7 @@ private:
     class Parameter2D;
     class Parameter1D;
     class ColourPreviewComp;
+    class OriginalColourComp;
 
     enum class Params
     {
@@ -145,6 +146,7 @@ private:
 
     ColourSelectorLF lf;
     DeepColour colour;
+    DeepColour originalColour;
 
     juce::OwnedArray<juce::ToggleButton> toggles;
     juce::OwnedArray<juce::Slider> sliders;
@@ -152,6 +154,8 @@ private:
     std::unique_ptr<Parameter1D> parameter1D;
     std::unique_ptr<juce::TextEditor> hex;
     std::unique_ptr<ColourPreviewComp> previewComponent;
+    std::unique_ptr<OriginalColourComp> originalColourComponent;
+    std::unique_ptr<juce::TextButton> resetButton;
     juce::OwnedArray<SwatchComponent> swatchComponents;
     const int flags;
     int edgeGap;
