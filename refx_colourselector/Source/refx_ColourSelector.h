@@ -22,17 +22,17 @@ public:
     /** Options for the type of selector to show. These are passed into the constructor. */
     enum ColourSelectorOptions
     {
-        showAlphaChannel    = 1 << 0,   /**< if set, the colour's alpha channel can be changed as well as its RGB. */
-
-        showColourAtTop     = 1 << 1,   /**< if set, a swatch of the colour is shown at the top of the component. */
-        editableColour      = 1 << 2,   /**< if set, the colour shows at the top of the component is editable. */
-        showRGBSliders      = 1 << 3,   /**< if set, RGB sliders are shown at the bottom of the component. */
-        showHSBSliders      = 1 << 4,   /**< if set, HSV sliders are shown at the bottom of the component. */
-        showToggle          = 1 << 5,   /**< if set, radiobuttons are shown to select colourspace edit mode */
-        showReset           = 1 << 6,   /**< if set, show a button to reset colour. */
-        showOriginalColour  = 1 << 7,   /**< if set, show a swatch with original colour and current. */
-        showColourspace     = 1 << 8,   /**< if set, a big HSV selector is shown. */
-        showHexEdit         = 1 << 9,   /**< if set, a TextEditor with the colour in hex is shown **/
+        showAlphaChannel    = 1 << 0,           /**< if set, the colour's alpha channel can be changed as well as its RGB. */
+        showColourAtTop     = 1 << 1,           /**< if set, a swatch of the colour is shown at the top of the component. */
+        editableColour      = 1 << 2,           /**< if set, the colour shows at the top of the component is editable. */
+        showRGBSliders      = 1 << 3,           /**< if set, RGB sliders are shown at the bottom of the component. */
+        showSliders         = showRGBSliders,   /**< if set, RGB sliders are shown at the bottom of the component. */
+        showHSBSliders      = 1 << 4,           /**< if set, HSV sliders are shown at the bottom of the component. */
+        showToggle          = 1 << 5,           /**< if set, radiobuttons are shown to select colourspace edit mode */
+        showReset           = 1 << 6,           /**< if set, show a button to reset colour. */
+        showOriginalColour  = 1 << 7,           /**< if set, show a swatch with original colour and current. */
+        showColourspace     = 1 << 8,           /**< if set, a big HSV selector is shown. */
+        showHexEdit         = 1 << 9,           /**< if set, a TextEditor with the colour in hex is shown **/
     };
 
     //==============================================================================
