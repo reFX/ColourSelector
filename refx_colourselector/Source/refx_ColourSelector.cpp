@@ -471,7 +471,7 @@ private:
     };
 
     Parameter1DMarker marker;
-    Params param;
+    Params param = Params::hue;
 
     JUCE_DECLARE_NON_COPYABLE (Parameter1D)
 };
