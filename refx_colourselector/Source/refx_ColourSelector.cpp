@@ -890,13 +890,13 @@ void ColourSelector::resized()
 
     if (sliders.size() > 0)
     {
-        for (auto i = 0; auto slider : sliders)
+        for (auto [i, slider] : juce::enumerate (sliders))
         {
             auto rc = juce::Rectangle<int> (proportionOfWidth (0.2f), y, proportionOfWidth (0.72f), sliderHeight - 2);
 
             auto trc = rc.removeFromLeft (rc.getHeight() + 2);
             if (i < std::ssize (toggles))
-                toggles[i]->setBounds (trc.translated (-sliderHeight, 0));
+                toggles[int (i)]->setBounds (trc.translated (-sliderHeight, 0));
 
             slider->setBounds (rc);
 
@@ -907,8 +907,6 @@ void ColourSelector::resized()
 
             if (slider == blueSlider && alphaSlider != nullptr)
                 y += sliderHeight / 2;
-
-            ++i;
         }
     }
 
