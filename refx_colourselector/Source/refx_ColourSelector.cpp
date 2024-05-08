@@ -607,7 +607,7 @@ private:
     ColourSelector& owner;
 
     juce::Colour currentColour;
-    juce::Font labelFont { 14.0f, juce::Font::bold };
+    juce::Font labelFont { juce::FontOptions ( 14.0f, juce::Font::bold ) };
     int labelWidth = 0;
     juce::Label colourLabel;
 
