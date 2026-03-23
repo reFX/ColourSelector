@@ -692,6 +692,8 @@ ColourSelector::ColourSelector (int sectionsToShow, int edge, int gapAroundColou
     {
         hex = std::make_unique<juce::TextEditor>();
         hex->setJustification (juce::Justification::centred);
+        hex->setBorder (juce::BorderSize<int> (0));
+        hex->setIndents (2, 0);
         hex->onTextChange = [this]
         {
             auto hcol = hex->getText();
@@ -851,7 +853,7 @@ void ColourSelector::resized()
     const int numSwatches = getNumSwatches();
 
     const int swatchSpace = numSwatches > 0 ? edgeGap + swatchHeight * ((numSwatches + 7) / swatchesPerRow) : 0;
-    const int sliderSpace = ((flags & showRGBSliders) != 0)  ? juce::jmin (int (22 * numSliders + edgeGap), proportionOfHeight (0.3f)) : 0;
+    const int sliderSpace = ((flags & showRGBSliders) != 0)  ? int (22 * numSliders + edgeGap) : 0;
     const int topSpace = ((flags & showColourAtTop) != 0) ? juce::jmin (30 + edgeGap * 2, proportionOfHeight (0.2f)) : edgeGap;
 
     if (previewComponent != nullptr)
@@ -863,15 +865,17 @@ void ColourSelector::resized()
     {
         const int hueWidth = juce::jmin (50, proportionOfWidth (0.15f));
 
-        parameter2D->setBounds (edgeGap, y,
-                                getWidth() - hueWidth - edgeGap - 4,
-                                getHeight() - topSpace - sliderSpace - swatchSpace - edgeGap);
+        const int p2dWidth = getWidth() - hueWidth - edgeGap - 4;
+        const int p2dAvail = getHeight() - topSpace - sliderSpace - swatchSpace - edgeGap;
+        const int p2dHeight = juce::jmin (p2dWidth, p2dAvail);
+
+        parameter2D->setBounds (edgeGap, y, p2dWidth, p2dHeight);
 
         parameter1D->setBounds (parameter2D->getRight() + 4, y,
                                 getWidth() - edgeGap - (parameter2D->getRight() + 4),
-                                parameter2D->getHeight());
+                                p2dHeight);
 
-        y = getHeight() - sliderSpace - swatchSpace - edgeGap;
+        y += p2dHeight;
     }
 
     if (originalColourComponent != nullptr)
